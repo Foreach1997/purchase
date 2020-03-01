@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>采购系统</title>
+    <link rel="stylesheet" href="./layui/css/layui.css">
+    <script src="./layui/layui.js"></script>
+    <script src="./js/jquery-3.4.1.js"></script>
+    <script src="./config/config.js"></script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo">采购系统</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;" id="name">
+                    贤心
+                </a>
+            </li>
+            <li class="layui-nav-item"><a href="javascript:;" id="update">修改密码</a></li>
+            <li class="layui-nav-item"><a href="javascript:;" id="loginOut">退出</a></li>
+        </ul>
+    </div>
+
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+                <li class="layui-nav-item"><a href="./performanceMsg/performance.html"   target="contentFrame" id="performance">科研绩效</a></li>
+                <li class="layui-nav-item"><a href="./scientificMsg/scientific.html" target="contentFrame" id="project">科研项目</a></li>
+                <li class="layui-nav-item layui-nav-itemed">
+                    <a class="" href="javascript:;" style="display: none" id="projectInfo">科研信息</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="./scientificInfoMsg/scientificInfoConf.html" target="contentFrame"   id="condition">计算条件</a></dd>
+                        <dd><a href="./scientificInfoMsg/scientificInfo.html" target="contentFrame"  id="projectType">项目类别</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item layui-nav-itemed"  id="admin">
+                    <a class="" href="javascript:;" >系统设置</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="./userMsg/userMannage.html" target="contentFrame">人员管理</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div style="display: none; padding: 10px" id="addOrUpdateView">
+        <form class="layui-form" action="" method="post" id="dataFrm" lay-filter="dataFrm">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">新密码</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="password" id="password"
+                               autocomplete="off" placeholder="请输入密码" class="layui-input">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit="" lay-filter="doSubmit">立即提交</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div style="width:100%;height:100%;">
+            <iframe src="javascript:;" id="contentFrame" name="contentFrame" style="width: 100%; height: 100%;" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <div class="layui-footer">
+        <!-- 底部固定区域 -->
+        © layui.com - 底部固定区域
+    </div>
+</div>
+<script>
+
+    $(function () {
+        $("#name").text(sessionStorage.getItem("userName"));
+    })
+    layui.use('element', function() {
+        var element = layui.element;
+    })
+    $("#loginOut").click(function () {
+        debugger;
+        console.log(12312)
+        $.ajax({
+            type: "GET",
+            url: dev+"user/loginOut",
+            async:false,
+            data: {
+            },
+            success: function(res){
+                if (res.code==0){
+                    // $.cookie('userName',res.data.userName);
+                    sessionStorage.removeItem("userName")
+                    sessionStorage.removeItem("id");
+                    window.location.href="index.html"
+                }else {
+                    layer.msg(res.msg)
+                }
+            }
+        })
+    })
+
+    layui.use(["form","layer"],function(){
+        var layer=layui.layer;
+        var form=layui.form;
+        var url;
+        var mainIndex;
+        $("#update").click( function (){
+            mainIndex=layer.open({
+                type:1,
+                title:'修改密码',
+                content:$("#addOrUpdateView"),
+                area:['400px','200px'],
+                skin:'layui-layer-molv',
+                maxmin:true,
+                success:function(layero, index){
+                    //清空表单
+                    $("#dataFrm")[0].reset();
+                    //移除下拉列表展开的样式
+                    $("#accordionDeptid").removeClass("layui-show layui-anim layui-anim-upbit");
+
+                    url=dev+"ScientificUser/updatePassword";
+                }
+            })
+        })
+
+        form.on('submit(doSubmit)',function(data){
+            var params=$("#dataFrm").serialize();
+            $.post(url,params,function(obj){
+                 layer.msg(obj.msg);
+                //关闭弹出层
+                layer.close(mainIndex);
+            })
+            return false;
+        });
+
+    })
+
+
+
+
+</script>
+</body>
+</html>

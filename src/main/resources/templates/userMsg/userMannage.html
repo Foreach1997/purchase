@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>用户管理-用户列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all" />
+    <script src="../config/config.js"></script>
+    <link rel="stylesheet" href="../layui/layui.all.js" media="all" />
+    <link rel="stylesheet" href="../js/jquery-3.4.1.js" media="all" />
+    <link rel="stylesheet" href="../layui_ext/dtree/dtree.css" media="all" />
+    <link rel="stylesheet" href="../layui_ext/dtree/font/dtreefont.css" media="all" />
+    <style type="text/css">
+        .select-test{position: absolute;max-height: 500px;height: 350px;overflow: auto;width: 100%;z-index: 123;display: none;border:1px solid silver;top: 42px;}
+        .layui-show{display: block!important;}
+    </style>
+</head>
+<body  class="childrenBody">
+<!-- 查询条件开始 -->
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>查询条件</legend>
+</fieldset>
+<form action="" id="searchFrm" method="post" lay-filter="searchFrm">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">用户名称:</label>
+            <div class="layui-input-inline">
+                <input type="text" name="userName" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" id="doSearch" >查询</button>
+            <button type="reset" class="layui-btn layui-btn-primary" id="doReload">清空</button>
+        </div>
+    </div>
+</form>
+<!-- 查询条件结束 -->
+<!-- 数据表格开始 -->
+<table class="layui-hide" lay-filter="userTable" id="userTable"></table>
+
+<div class="layui-hide" id="userToolbar">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm"  lay-event="addUser">添加用户</button>
+    </div>
+</div>
+<div class="layui-hide" id="userBar">
+    <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-danger layui-btn-xs"  lay-event="del">删除</a>
+</div>
+
+<!-- 添加和修改弹出层 -->
+<div style="display: none; padding: 10px" id="addOrUpdateView">
+    <form class="layui-form" action="" method="post" id="dataFrm" lay-filter="dataFrm">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">用户名称</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="id">
+                    <input type="hidden" name="createName">
+                    <input type="text" name="userName" id="userName"
+                           autocomplete="off" placeholder="请输入用户名称" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">密码</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="password" id="password"
+                           autocomplete="off" placeholder="密码" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">邮箱</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="email" id="email" lay-verify="email"
+                           autocomplete="off" placeholder="请输入邮箱" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">手机号</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="phone" id="phone"
+                           autocomplete="off" placeholder="请输入手机号" class="layui-input">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="doSubmit">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- 数据表格结束 -->
+<script type="text/javascript" src="../layui/layui.js"></script>
+<script type="text/javascript" src="../layui_ext/dist/dtree.js"></script>
+
+<script type="text/javascript">
+    var tableIns;//提升作用域
+
+    layui.config({
+        base : "../layui_ext/dist/"
+    }).extend({
+        "dtree" : "dtree"
+    })
+    layui.use(["form","table","jquery","layer","dtree",'laydate'],function(){
+        var table=layui.table;
+        var form=layui.form;
+        var $=layui.jquery;
+        var layer=layui.layer;
+        var laydate = layui.laydate;
+        laydate.render({
+            elem:"#hiredate"
+        });
+        tableIns=table.render({
+            elem: '#userTable'
+            ,url: dev+'user/loadAllUser'
+            ,toolbar: '#userToolbar'
+            ,page:true
+            ,height:'full-130'
+            ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            ,cols: [ [
+                {field:'id', width: 100, title: '用户id' },
+                {field:'userName', width: 100, title: '用户名' },
+                {field:'email', width:200, title: '邮箱'},
+                {field:'createName', width:130, title: '创建人'},
+                {field:'password', width:100, title: '密码'},
+                {field:'phone', title: '手机号',width: 150},
+                {field:'createTime', title: '创建时间', width: 200},
+                {fixed: 'right', title:'操作',align:'center', toolbar: '#userBar', width:240}
+            ] ]
+            ,done:function(res, curr){
+                var brforeCurr = curr; // 获得当前页码
+                var dataLength = res.data.length; // 获得当前页的记录数
+                var count = res.count; // 获得总记录数
+                if(dataLength === 0 && count !== 0){ //如果当前页的记录数为0并且总记录数不为0
+                    table.reload("userTable",{ // 刷新表格到上一页
+                        page:{
+                            curr:brforeCurr-1
+                        }
+                    });
+                }
+            }
+        });
+        //模糊查询
+        $("#doSearch").click(function(){
+            var params=$("#searchFrm").serialize();
+            tableIns.reload({
+                url:dev+'user/loadAllUser?'+params
+            })
+        });
+        $("#doReload").click(function(){
+            tableIns.reload({
+                url:dev+'user/loadAllUser'
+            })
+        });
+        //监听头工具行的事件
+        table.on('toolbar(userTable)', function(obj){
+            switch(obj.event){
+                case 'addUser':
+                    openAddUserView();
+                    break;
+            };
+        });
+
+        //监听行工具行的事件
+        table.on('tool(userTable)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent=obj.event;
+            if(layEvent === 'del'){ //删除
+                deleteUserById(data);
+            } else if(layEvent === 'edit'){ //编辑
+                openUpdateUserView(data);
+            }
+        });
+
+        var mainIndex;
+        var url;
+        function openAddUserView(){
+            mainIndex=layer.open({
+                type:1,
+                title:'添加用户',
+                content:$("#addOrUpdateView"),
+                area:['400px','400px'],
+                skin:'layui-layer-molv',
+                maxmin:true,
+                success:function(layero, index){
+                    //清空表单
+                    $("#dataFrm")[0].reset();
+                    //移除下拉列表展开的样式
+                    $("#accordionDeptid").removeClass("layui-show layui-anim layui-anim-upbit");
+                    //加载最大的排序码
+                    // $.get("/user/loadUserMaxOrderNum",function(obj){
+                    //     $("#ordernum").val(obj.value);
+                    // });
+                    url=dev+"user/addUser";
+                }
+            })
+        };
+
+        //提交事件
+        form.on('submit(doSubmit)',function(data){
+            var params=$("#dataFrm").serialize();
+            $.get(url,params,function(obj){
+                // layer.msg(obj.msg);
+                //关闭弹出层
+                layer.close(mainIndex);
+                //刷新数据表格
+                tableIns.reload();
+                //刷新左边的树
+                window.parent.left.userTree.reload();
+            })
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+        //打开修改的弹出层
+        function openUpdateUserView(data){
+            mainIndex=layer.open({
+                type:1,
+                title:'修改用户',
+                content:$("#addOrUpdateView"),
+                area:['400px','400px'],
+                skin:'layui-layer-molv',
+                maxmin:true,
+                success:function(layero, index){
+                    //移除下拉列表展开的样式
+                    $("#accordionDeptid").removeClass("layui-show layui-anim layui-anim-upbit");
+                    form.val("dataFrm",data);
+                    url=dev+"user/updateUser";
+                }
+            });
+        };
+
+        //删除用户
+        function  deleteUserById(data){
+            layer.confirm('真的要删除【'+data.userName+'】这个用户么？', function(index){
+                //向服务端发送删除指令
+                $.get(dev+"user/deleteUser",{id:data.id},function(reslult){
+                    layer.msg(reslult.msg);
+                    layer.close(index);
+                    //刷新数据表格
+                    tableIns.reload();
+                })
+            });
+        };
+
+
+
+    });
+    //刷新的方法
+    function reloadTable(id){
+        tableIns.reload({
+            url:dev+'loadAllUser?deptid='+id,
+            page:{
+                curr:1
+            }
+        })
+    }
+</script>
+</body>
+</html>
