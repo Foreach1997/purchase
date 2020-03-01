@@ -138,14 +138,14 @@
             ,height:'full-130'
             ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
             ,cols: [ [
-                {field:'id', width: 100, title: '用户id' },
-                {field:'userName', width: 100, title: '用户名' },
+                {field:'id', width: 200, title: '用户id' },
+                {field:'userName', width: 150, title: '用户名' },
                 {field:'email', width:200, title: '邮箱'},
                 {field:'createName', width:130, title: '创建人'},
-                {field:'password', width:100, title: '密码'},
+                {field:'password', width:200, title: '密码'},
                 {field:'phone', title: '手机号',width: 150},
                 {field:'createTime', title: '创建时间', width: 200},
-                {fixed: 'right', title:'操作',align:'center', toolbar: '#userBar', width:240}
+                {fixed: 'right', title:'操作',align:'center', toolbar: '#userBar', width:250}
             ] ]
             ,done:function(res, curr){
                 var brforeCurr = curr; // 获得当前页码

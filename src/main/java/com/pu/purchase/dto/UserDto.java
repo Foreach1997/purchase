@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Data
 public class UserDto implements Serializable {
 
-    private Long id;
+    private String id;
 
     /**
      * 用户名字

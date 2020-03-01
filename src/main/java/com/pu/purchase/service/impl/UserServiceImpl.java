@@ -19,6 +19,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
@@ -64,6 +65,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             UserDto userDto = new UserDto();
             BeanUtils.copyProperties(user,userDto);
             userDto.setCreateTime(DateUtils.dateFrString(user.getCreateTime()));
+            userDto.setId(user.getId().toString());
             return userDto;
         }).collect(Collectors.toList());
         return RepResult.repResult(0, "查询成功", dtoList, (int)userPage.getTotal());
@@ -105,7 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         User user_name = userMapper.selectOne(new QueryWrapper<User>().eq("user_name", WebUtils.getCurrentUserName()));
         user_name.setPassword(password);
-        if (1 != userMapper.updateById(user_name)) {
+        if (1 != userMapper.update(user_name,new QueryWrapper<User>().eq("id",user_name.getId()))) {
             throw new BizException("修改密码失败");
         }
         return RepResult.repResult(0, "修改成功", null);
