@@ -29,14 +29,7 @@
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree"  lay-filter="test">
                 <li class="layui-nav-item"><a href="./performanceMsg/performance.html"   target="contentFrame" id="performance">科研绩效</a></li>
-                <li class="layui-nav-item"><a href="./scientificMsg/scientific.html" target="contentFrame" id="project">科研项目</a></li>
-                <li class="layui-nav-item layui-nav-itemed">
-                    <a class="" href="javascript:;" style="display: none" id="projectInfo">科研信息</a>
-                    <dl class="layui-nav-child">
-                        <dd><a href="./scientificInfoMsg/scientificInfoConf.html" target="contentFrame"   id="condition">计算条件</a></dd>
-                        <dd><a href="./scientificInfoMsg/scientificInfo.html" target="contentFrame"  id="projectType">项目类别</a></dd>
-                    </dl>
-                </li>
+                <li class="layui-nav-item"><a href="./scientificMsg/scientific.html" target="contentFrame" id="project">采购计划</a></li>
                 <li class="layui-nav-item layui-nav-itemed"  id="admin">
                     <a class="" href="javascript:;" >系统设置</a>
                     <dl class="layui-nav-child">
@@ -130,7 +123,7 @@
                     //移除下拉列表展开的样式
                     $("#accordionDeptid").removeClass("layui-show layui-anim layui-anim-upbit");
 
-                    url=dev+"ScientificUser/updatePassword";
+                    url=dev+"user/updatePassword";
                 }
             })
         })

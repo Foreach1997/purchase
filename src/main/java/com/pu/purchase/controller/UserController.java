@@ -39,6 +39,14 @@ public class UserController {
     }
 
 
+    /**
+     * 修改密码
+     * @return
+     */
+    @RequestMapping("updatePassword")
+    public Object updatePassword(String password){
+        return userServiceImpl.updatePassword(password);
+    }
 
 
     /**

@@ -49,6 +49,11 @@ public class PurchaseDetail implements Serializable {
     private Integer storageQuality;
 
     /**
+     * 0未完成1已完成
+     */
+    private Integer status;
+
+    /**
      * 采购价格
      */
     private BigDecimal purchasePrice;
