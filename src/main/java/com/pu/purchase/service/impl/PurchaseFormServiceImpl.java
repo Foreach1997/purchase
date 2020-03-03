@@ -24,7 +24,9 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.xml.crypto.Data;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,6 +64,20 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
             purchaseFormDto.setQualifiedQuality(purchaseDetail.getQualifiedQuality());
             purchaseFormDto.setStorageQuality(purchaseDetail.getStorageQuality());
             purchaseFormDto.setPurchasePrice(purchaseDetail.getPurchasePrice());
+            switch (purchaseForm.getStatus()){
+                case -1:
+                    purchaseFormDto.setStatus("已作废");
+                    break;
+                case 0:
+                    purchaseFormDto.setStatus("待确认");
+                    break;
+                case 1:
+                    purchaseFormDto.setStatus("已确认");
+                    break;
+                default:
+                    purchaseFormDto.setStatus("已完成");
+                    break;
+            }
             return purchaseFormDto;
         }).collect(Collectors.toList());
         return RepResult.repResult(0, "查询成功", dtoList, (int)purchaseFormPage.getTotal());
@@ -71,8 +87,12 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         if (null == record) {
             throw new BizException("添加数据为空");
         }
+        Long time = new Date().getTime();
+        record.setNo(time.toString());
         record.setCreatePerson(WebUtils.getCurrentUserName());
+        record.setUpdateDate(LocalDateTime.now());
         record.setCreateDate(LocalDateTime.now());
+        record.setStatus(0);
         if (1 != purchaseFormMapper.insert(record)) {
             throw new BizException("添加采购单失败");
         }
@@ -80,7 +100,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         purchaseDetail.setProductNo(record.getProductNo());
         purchaseDetail.setPurchasePrice(record.getPurchasePrice());
         purchaseDetail.setPurchaseQuality(record.getPurchaseQuality());
-        purchaseDetail.setPurchaseNo(record.getNo());
+        purchaseDetail.setPurchaseNo(time.toString());
         if(1 != purchaseDetailMapper.insert(purchaseDetail)){
             throw new BizException("添加采购单详情失败");
         }

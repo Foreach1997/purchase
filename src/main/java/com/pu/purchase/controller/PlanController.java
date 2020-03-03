@@ -1,11 +1,10 @@
 package com.pu.purchase.controller;
 
 
-import com.pu.purchase.entity.PurchaseForm;
-import com.pu.purchase.entity.User;
+import com.pu.purchase.service.impl.MaterialServiceImpl;
 import com.pu.purchase.service.impl.PurchaseFormServiceImpl;
+import com.pu.purchase.service.impl.SupplierServiceImpl;
 import com.pu.purchase.vo.PurchaseFormVo;
-import com.pu.purchase.vo.UserVo;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +19,13 @@ public class PlanController {
 
     @Resource
     private PurchaseFormServiceImpl purchaseFormServiceImpl;
+
+    @Resource
+    private SupplierServiceImpl supplierServiceImpl;
+
+
+    @Resource
+    private MaterialServiceImpl materialService;
 
 
     /**
@@ -60,4 +66,24 @@ public class PlanController {
     public Object deletePurchaseForm(String id) {
         return purchaseFormServiceImpl.deleteByPrimaryKey(id);
     }
+
+
+    /**
+     * 加载供应商列表
+     */
+    @GetMapping("/supplier")
+    public Object getSupplierList() {
+        return supplierServiceImpl.getSupplierList();
+    }
+
+    /**
+     * 加载产品列表
+     */
+    @GetMapping("/material")
+    public Object getMaterialList() {
+        return materialService.getMaterialList();
+    }
+
+
+
 }

@@ -32,7 +32,7 @@ public class PurchaseFormDto implements Serializable {
     /**
      * 状态：-1已作废0待确认1已确认2已完成
      */
-    private Integer status;
+    private String status;
 
     /**
      * 记录生成人
@@ -53,11 +53,11 @@ public class PurchaseFormDto implements Serializable {
      */
     private LocalDateTime updateDate;
 
+
     /**
      * 货品编号
      */
     private String productNo;
-
     /**
      * 采购数量
      */
