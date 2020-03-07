@@ -20,6 +20,11 @@ public class PurchaseFormDto implements Serializable {
     private Integer supplierId;
 
     /**
+     * 供应商姓名
+     */
+    private String supplierName;
+
+    /**
      * 合同编号
      */
     private String contractNo;
@@ -41,7 +46,7 @@ public class PurchaseFormDto implements Serializable {
     /**
      * 记录生成时间
      */
-    private LocalDateTime createDate;
+    private String createDate;
 
     /**
      * 更新人
@@ -51,7 +56,7 @@ public class PurchaseFormDto implements Serializable {
     /**
      * 更新时间
      */
-    private LocalDateTime updateDate;
+    private String updateDate;
 
 
     /**
