@@ -1,16 +1,22 @@
 package com.pu.purchase.controller;
 
 
+import com.pu.purchase.service.impl.ContractServiceImpl;
 import com.pu.purchase.service.impl.MaterialServiceImpl;
 import com.pu.purchase.service.impl.PurchaseFormServiceImpl;
 import com.pu.purchase.service.impl.SupplierServiceImpl;
 import com.pu.purchase.vo.PurchaseFormVo;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @RestController
 @CrossOrigin
@@ -26,6 +32,9 @@ public class PlanController {
 
     @Resource
     private MaterialServiceImpl materialService;
+
+    @Resource
+    private ContractServiceImpl contractService;
 
 
     /**
@@ -63,8 +72,16 @@ public class PlanController {
      * 删除采购计划
      */
     @GetMapping("/deletePurchaseForm")
-    public Object deletePurchaseForm(String id) {
-        return purchaseFormServiceImpl.deleteByPrimaryKey(id);
+    public Object deletePurchaseForm(String no) {
+        return purchaseFormServiceImpl.deleteByPrimaryKey(no);
+    }
+
+    /**
+     * 导入采购计划
+     */
+    @RequestMapping("/importPurchaseForm")
+    public Object importPurchaseForm(MultipartFile file) {
+        return purchaseFormServiceImpl.importPurchaseForm(file);
     }
 
 
@@ -83,6 +100,17 @@ public class PlanController {
     public Object getMaterialList() {
         return materialService.getMaterialList();
     }
+
+
+    /**
+     * 发送邮件
+     */
+    @GetMapping("/contract")
+    public Object sendContract(String no) {
+        return contractService.sendContract(no);
+    }
+
+
 
 
 

@@ -75,11 +75,13 @@
 <div class="layui-hide" id="userToolbar">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm"  lay-event="addPurchase">添加采购单</button>
+        <button type="button" class="layui-btn layui-btn-sm"  id="test3"><i class="layui-icon"></i>导入采购单</button>
     </div>
 </div>
 <div class="layui-hide" id="userBar">
     <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
     <a class="layui-btn layui-btn-danger layui-btn-xs"  lay-event="del">删除</a>
+    <a class="layui-btn layui-btn-xs" lay-event="contract">生成合同</a>
 </div>
 
 <!-- 添加和修改弹出层 -->
@@ -100,21 +102,6 @@
                 <label class="layui-form-label">供应商</label>
                 <div class="layui-input-inline">
                     <select name="supplierId" id="supplierId" >
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">状态</label>
-                <div class="layui-input-inline">
-                    <select name="purchaseType" lay-search="">
-                        <option value="">直接选择</option>
-                        <option value="1">经销</option>
-                        <option value="2">代销</option>
-                        <option value="3">联营</option>
-                        <option value="4">包销</option>
-                        <option value="5">对方发货</option>
                     </select>
                 </div>
             </div>
@@ -156,7 +143,6 @@
         </div>
     </form>
 </div>
-
 <!-- 数据表格结束 -->
 <script type="text/javascript" src="../layui/layui.js"></script>
 <script type="text/javascript" src="../layui_ext/dist/dtree.js"></script>
@@ -169,12 +155,13 @@
     }).extend({
         "dtree" : "dtree"
     })
-    layui.use(["form","table","jquery","layer","dtree",'laydate'],function(){
+    layui.use(["form","table","jquery","upload","layer","dtree",'laydate'],function(){
         var table=layui.table;
         var form=layui.form;
         var $=layui.jquery;
         var layer=layui.layer;
         var laydate = layui.laydate;
+        var upload = layui.upload;
         laydate.render({
             elem:"#hiredate"
         });
@@ -186,19 +173,30 @@
             ,height:'full-130'
             ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
             ,cols: [ [
-                {field:'no', width: 100, title: '采购单号' },
-                {field:'name', width: 100, title: '名称' },
-                {field:'contractNo', width:100, title: '合同编号'},
-                {field:'supplierId', width:100, title: '供应商ID'},
-                {field:'status', width:80, title: '状态'},
-                {field:'productNo', title: '货品编号',width: 150},
+                {field:'no', width: 140, title: '采购单号' },
+                {field:'name', width: 80, title: '名称' },
+                {field:'contractNo', width:150, title: '合同编号'},
+                {field:'supplierName', width:130, title: '供应商'},
+                // {field:'supplierName', width:100, title: '供应商名称'},
+                {field:'status', width:80, title: '状态',templet: function(obj){
+                    if(obj.status==='-1'){
+                        return '已作废'
+                    }else if(obj.status==='0'){
+                        return '待确认'
+                    }else if(obj.status==='1'){
+                        return '已确认'
+                    }else if(obj.status==='2'){
+                        return '已完成'
+                    }
+                }},
+                {field:'productNo', title: '货品编号',width: 100},
                 {field:'purchaseQuality', title: '采购数量', width: 100},
                 {field:'qualifiedQuality', title: '合格数量', width: 100},
-                {field:'storageQuality', title: '已入库数量', width: 100},
+                {field:'storageQuality', title: '已入库数量', width: 110},
                 {field:'purchasePrice', title: '采购价格', width: 100},
-                {field:'createPerson', title: '记录生成人', width: 100},
-                {field:'createDate', title: '记录生成时间', width: 100},
-                {field:'updateDate', title: '更新时间', width: 100},
+                {field:'createPerson', title: '记录生成人', width: 110},
+                {field:'createDate', title: '记录生成时间', width: 180},
+                {field:'updateDate', title: '更新时间', width: 180},
                 {fixed: 'right', title:'操作',align:'center', toolbar: '#userBar', width:250}
             ] ]
             ,done:function(res, curr){
@@ -243,6 +241,8 @@
                 deleteUserById(data);
             } else if(layEvent === 'edit'){ //编辑
                 openUpdateUserView(data);
+            } else if(layEvent === 'contract'){
+                contractView(data);
             }
         });
 
@@ -261,10 +261,6 @@
                     $("#dataFrm")[0].reset();
                     //移除下拉列表展开的样式
                     $("#accordionDeptid").removeClass("layui-show layui-anim layui-anim-upbit");
-                    //加载最大的排序码
-                    // $.get("/user/loadUserMaxOrderNum",function(obj){
-                    //     $("#ordernum").val(obj.value);
-                    // });
                     url=dev+"plan/addPurchaseForm";
                 }
             })
@@ -279,8 +275,6 @@
                 layer.close(mainIndex);
                 //刷新数据表格
                 tableIns.reload();
-                //刷新左边的树
-                window.parent.left.userTree.reload();
             })
             return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
         });
@@ -299,6 +293,17 @@
                     form.val("dataFrm",data);
                     url=dev+"plan/updatePurchaseForm";
                 }
+            });
+        };
+
+        //生成合同并发送邮件
+        function contractView(data){
+            layer.confirm('确认后将给【'+data.supplierName+'】发送邮件', function(index){
+                $.get(dev+"plan/contract",{no:data.no},function(reslult){
+                    layer.msg(reslult.msg);
+                    layer.close(index);
+                    tableIns.reload();
+                })
             });
         };
 
@@ -328,8 +333,17 @@
             providerId.html(html);
             providerIdAdd.html(html);
             form.render("select");
-        })
+        });
 
+        upload.render({
+            elem: '#test3'
+            ,url: dev+'plan/importPurchaseForm'
+            ,accept: 'file'
+            ,done: function(res){
+                layer.msg(res.msg);
+                tableIns.reload();
+            }
+        });
 
         //初始化查询产品的下拉列表
         $.get(dev+"/plan/material",function(obj){
@@ -349,7 +363,7 @@
     //刷新的方法
     function reloadTable(id){
         tableIns.reload({
-            url:dev+'loadAllUser?deptid='+id,
+            url:dev+'plan/loadAllPurchaseForm',
             page:{
                 curr:1
             }
