@@ -5,8 +5,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
+import com.pu.purchase.entity.DeliverForm;
+import com.pu.purchase.entity.PurchaseDetail;
 import com.pu.purchase.entity.Supplier;
+import com.pu.purchase.entity.SupplierScore;
+import com.pu.purchase.mapper.DeliverFormMapper;
+import com.pu.purchase.mapper.PurchaseDetailMapper;
 import com.pu.purchase.mapper.SupplierMapper;
+import com.pu.purchase.mapper.SupplierScoreMapper;
 import com.pu.purchase.service.ISupplierService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pu.purchase.util.RepResult;
@@ -16,6 +22,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Period;
 import java.util.List;
 
 
@@ -30,8 +42,14 @@ import java.util.List;
 @Service
 public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> implements ISupplierService {
 
-    @Autowired
+    @Resource
     private SupplierMapper supplierMapper;
+    @Resource
+    private PurchaseDetailMapper purchaseDetailMapper;
+    @Resource
+    private DeliverFormMapper deliverFormMapper;
+    @Resource
+    private SupplierScoreMapper supplierScoreMapper;
 
 
    @Override
@@ -52,4 +70,74 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         return RepResult.repResult(0, "查询成功", supplierList, (long) supplierList.size());
     }
 
+    Object updateSupplierScore(String purchaseNo){
+        List<PurchaseDetail>  purchaseDetails = purchaseDetailMapper.selectList(new QueryWrapper<PurchaseDetail>().lambda().eq(PurchaseDetail::getPurchaseNo,purchaseNo));
+         //[0,25] = -0.5 ,[26,50] -0.25 ..... [50,75] = +0.5 ,[75,100] +0.25
+         for (PurchaseDetail purchaseDetail : purchaseDetails) {
+             BigDecimal score = new BigDecimal(100);
+         //合格率分数
+         BigDecimal rateScore =  new BigDecimal(purchaseDetail.getQualifiedQuality())
+                   .divide(new BigDecimal(purchaseDetail.getPurchaseQuality()),2, RoundingMode.HALF_UP)
+                   .multiply(new BigDecimal(40));
+             score = score.add(rateScore);
+         DeliverForm  deliverForms =  deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().lambda()
+                    .eq(DeliverForm::getPurchaseNo,purchaseNo)
+                    .eq(DeliverForm::getSupplierId,purchaseDetail.getSupplierId()));
+         //单价分数
+         BigDecimal priceRate = purchaseDetail.getPrice().subtract(deliverForms.getPrice())
+                 .divide(purchaseDetail.getPrice(),2,RoundingMode.HALF_UP);
+         BigDecimal priceScore = BigDecimal.ZERO;
+         if (priceRate.compareTo(BigDecimal.ZERO) <= 0){
+             priceScore = new BigDecimal(Math.abs(priceRate.floatValue())).multiply(new BigDecimal(30));
+         }else {
+             priceScore = priceRate.multiply(new BigDecimal(30));
+         }
+             score = score.add(priceScore);
+             //从发送采购订单到到货时间
+         if (Period.between(deliverForms.getDeliverDate().toLocalDate(),deliverForms.getTheoryTime().toLocalDate()).getDays()>0){
+             score = score.add(new BigDecimal(10));
+         };
+         //按照采购订单规定数量交货
+         BigDecimal timeScore =   new BigDecimal(deliverForms.getNum())
+                     .divide(new BigDecimal(deliverForms.getTheoryNum()),2,RoundingMode.HALF_UP)
+                     .multiply(new BigDecimal(20));
+         score = score.add(timeScore);
+        SupplierScore supplierScore =  supplierScoreMapper.selectOne(new QueryWrapper<SupplierScore>().lambda()
+                 .eq(SupplierScore::getSupplierId,deliverForms.getSupplierId())
+                 .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo()));
+        if (supplierScore != null){
+                supplierScore.setSupplierScore(getFastScore(score));
+                supplierScoreMapper.update(supplierScore,new QueryWrapper<SupplierScore>().lambda()
+                        .eq(SupplierScore::getId,supplierScore.getId()));
+        }else {
+             supplierScore = new SupplierScore();
+             supplierScore.setCreateTime(LocalDateTime.now());
+             supplierScore.setSupplierId(deliverForms.getSupplierId());
+             supplierScore.setMaterialId(Long.valueOf(purchaseDetail.getProductNo()));
+             supplierScore.setSupplierScore(getFastScore(score));
+             supplierScoreMapper.insert(supplierScore);
+            }
+        }
+        return RepResult.repResult(0,"成功",null);
+    }
+
+    public BigDecimal getFastScore(BigDecimal score){
+       BigDecimal  fastScore = BigDecimal.ZERO;
+       if (0<=score.floatValue() && score.floatValue()<25){
+            fastScore = BigDecimal.valueOf(-1);
+       }
+       else if (25<=score.floatValue() && score.floatValue()<50){
+           fastScore = BigDecimal.valueOf(-0.5);
+       }
+       else if (50<=score.floatValue() && score.floatValue()<75){
+           fastScore = BigDecimal.valueOf(0.5);
+       }
+       else if (75<=score.floatValue() && score.floatValue()<100){
+           fastScore = BigDecimal.valueOf(1);
+       }
+       return fastScore;
+    }
+
+    public static void main(String[] args) {
+    }
 }

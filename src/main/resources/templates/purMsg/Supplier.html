@@ -27,6 +27,17 @@
 <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
     <legend>供应商</legend>
 </fieldset>
+<div class="layui-form-item" style="margin-left: 600px">
+    <div class="layui-inline">
+        <button class="layui-btn layui-btn-normal" id="find">查询</button>
+    </div>
+    <!--<div class="layui-inline">
+        <button class="layui-btn" id="reset">重置</button>
+    </div>-->
+    <div class="layui-inline" >
+        <button class="layui-btn" id="addSupplier" >添加供应商</button>
+    </div>
+</div>
 <div id="info" lay-filter="demo">
 
 </div>
@@ -34,10 +45,13 @@
 <!-- 数据表格结束 -->
 <script type="text/javascript" src="../layui/layui.js"></script>
 <script type="text/javascript" src="../layui_ext/dist/dtree.js"></script>
-
+<script type="text/html" id="barDemo">
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">编辑</a>
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="del">删除</a>
+</script>
 <script type="text/javascript">
     var edit;
-
+    var flag;
     layui.use('table', function(){
         var tableWidth = $("#info").width() - 28;
         var table = layui.table;
@@ -91,15 +105,37 @@
                     reload();
                 });
             }else if(obj.event === 'edit'){
-
+                flag = true;
+                layui.use('layer',function () {
+                    layer.open({
+                        type: 2,
+                        title: '编辑',
+                        shadeClose: true,
+                        shade: 0.8,
+                        area: ['350px', '550px'],
+                        content: 'editSupplier.html'
+                    });
+                });
             }
         });
     });
+    $('#addSupplier').click(function () {
+        flag = false;
+        layui.use('layer',function () {
+            layer.open({
+                type: 2,
+                title: '添加',
+                shadeClose: true,
+                shade: 0.8,
+                area:  ['350px', '550px'],
+                content: 'editSupplier.html'
+            });
+        });
+    })
 
     function reload(){
         layui.table.reload('info',{
             where: {
-                userIds: userId
             }
         })}
 

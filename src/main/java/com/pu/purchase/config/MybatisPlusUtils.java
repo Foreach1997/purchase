@@ -100,7 +100,7 @@ public class MybatisPlusUtils {
         templateConfig.setServiceImpl(null);
         templateConfig.setController(null);
 
-        //templateConfig.setXml(null);
+        templateConfig.setXml(null);
         mpg.setTemplate(templateConfig);
 
         // 策略配置

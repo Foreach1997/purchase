@@ -59,22 +59,23 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
     public Object queryAllPurchaseForm(PurchaseFormVo purchaseFormVo) {
         LambdaQueryWrapper<PurchaseForm> queryWrapper = new LambdaQueryWrapper<PurchaseForm>()
                 .eq(StringUtils.isNotBlank(purchaseFormVo.getNo()), PurchaseForm::getNo, purchaseFormVo.getNo())
-                .eq(null != purchaseFormVo.getSupplierId(), PurchaseForm::getSupplierId, purchaseFormVo.getSupplierId())
+                //.eq(null != purchaseFormVo.getSupplierId(), PurchaseForm::getSupplierId, purchaseFormVo.getSupplierId())
                 .eq(StringUtils.isNotBlank(purchaseFormVo.getName()), PurchaseForm::getName, purchaseFormVo.getName())
                 .eq(null != purchaseFormVo.getStatus(), PurchaseForm::getStatus, purchaseFormVo.getStatus());
+
         IPage<PurchaseForm> purchaseFormPage = purchaseFormMapper.selectPage(new Page<>(purchaseFormVo.getPage(), purchaseFormVo.getLimit()), queryWrapper);
         List<PurchaseFormDto> dtoList = purchaseFormPage.getRecords().stream().map(purchaseForm -> {
             PurchaseFormDto purchaseFormDto = new PurchaseFormDto();
             BeanUtils.copyProperties(purchaseForm, purchaseFormDto);
             PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", purchaseForm.getNo()));
-            Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", purchaseForm.getSupplierId()));
+            //Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", purchaseForm.getSupplierId()));
             purchaseFormDto.setProductNo(purchaseDetail.getProductNo());
             purchaseFormDto.setPurchaseQuality(purchaseDetail.getPurchaseQuality());
             purchaseFormDto.setQualifiedQuality(purchaseDetail.getQualifiedQuality());
             purchaseFormDto.setStorageQuality(purchaseDetail.getStorageQuality());
             purchaseFormDto.setPurchasePrice(purchaseDetail.getPurchasePrice());
             purchaseFormDto.setStatus(purchaseForm.getStatus().toString());
-            purchaseFormDto.setSupplierName(supplier.getSupplier());
+            //purchaseFormDto.setSupplierName(supplier.getSupplier());
             purchaseFormDto.setUpdateDate(DateUtils.dateFrString(purchaseForm.getUpdateDate()));
             purchaseFormDto.setCreateDate(DateUtils.dateFrString(purchaseForm.getCreateDate()));
             return purchaseFormDto;
@@ -86,7 +87,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         if (null == record) {
             throw new BizException("添加数据为空");
         }
-        Long time = new Date().getTime();
+        Long time = System.currentTimeMillis();
         record.setNo(time.toString());
         record.setCreatePerson(WebUtils.getCurrentUserName());
         record.setUpdateDate(LocalDateTime.now());
@@ -159,7 +160,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
                     PurchaseFormVo purchaseFormVo = new PurchaseFormVo();
                     Row row = sheet1.getRow(r);
                     purchaseFormVo.setName(Double.valueOf(String.valueOf(row.getCell(0) == null ? "" : row.getCell(0).toString())).intValue()+"");
-                    purchaseFormVo.setSupplierId(Double.valueOf(String.valueOf(row.getCell(1) == null ? "" : row.getCell(1))).intValue());
+                    //purchaseFormVo.setSupplierId(Double.valueOf(String.valueOf(row.getCell(1) == null ? "" : row.getCell(1))).intValue());
                     purchaseFormVo.setStatus(Double.valueOf(String.valueOf(row.getCell(2) == null ? "" : row.getCell(2))).intValue());
                     purchaseFormVo.setProductNo(Double.valueOf(String.valueOf(row.getCell(3) == null ? "" : row.getCell(3))).intValue()+"");
                     purchaseFormVo.setPurchaseQuality(Double.valueOf(String.valueOf(row.getCell(4) == null ? "" : row.getCell(4))).intValue());

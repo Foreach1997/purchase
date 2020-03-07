@@ -15,12 +15,12 @@ public class DeliverController {
      * 跳转至发货单页面
      */
     @RequestMapping("/toDeliverForm")
-    public ModelAndView toDeliverForm(String id,String no) {
+    public ModelAndView toDeliverForm(Long id,String no) {
         ModelAndView modelAndView = new ModelAndView();
 
         DeliverFormVo deliverFormVo = new DeliverFormVo();
         deliverFormVo.setPurNo(no);
-        deliverFormVo.setSupplierId(Integer.parseInt(id));
+        deliverFormVo.setSupplierId(id);
         modelAndView.setViewName("DeilMag/DeilverManager");
         modelAndView.addObject("deli",deliverFormVo);
         return modelAndView;

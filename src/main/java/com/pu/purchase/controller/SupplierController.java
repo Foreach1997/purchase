@@ -36,16 +36,22 @@ public class SupplierController  {
      * 通用更新供应商
      */
     @PostMapping("/updateSupplier")
-    public Object updateSupplier(Supplier supplier){
+    public Object updateSupplier(@RequestBody Supplier supplier){
         return RepResult.repResult(0,"成功",supplierServiceImpl.update(supplier,new QueryWrapper<Supplier>().lambda().eq(Supplier::getId,supplier.getId())));
     }
-
+    /**
+     * 通用添加供应商
+     */
+    @PostMapping("/addSupplier")
+    public Object addSupplier(@RequestBody Supplier supplier){
+        return RepResult.repResult(0,"成功",supplierServiceImpl.save(supplier));
+    }
 
     /**
      * 删除供应商
      */
     @GetMapping("/delSupplier")
-    public Object delSupplier(Integer id){
+    public Object delSupplier(Long id){
         Supplier supplier = new Supplier();
         supplier.setDeleteFlag("1");
         return RepResult.repResult(0,"成功",supplierServiceImpl.update(supplier,new QueryWrapper<Supplier>().lambda().eq(Supplier::getId,id)));

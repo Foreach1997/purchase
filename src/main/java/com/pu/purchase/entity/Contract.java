@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-07
+ * @since 2020-03-08
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -29,7 +29,7 @@ public class Contract implements Serializable {
     /**
      * 供应商ID
      */
-    private Integer supplierId;
+    private Long supplierId;
 
     /**
      * 生效开始日期

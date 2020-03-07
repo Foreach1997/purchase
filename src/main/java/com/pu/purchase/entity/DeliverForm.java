@@ -14,7 +14,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-07
+ * @since 2020-03-08
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -78,6 +78,21 @@ public class DeliverForm implements Serializable {
      * 数量
      */
     private Integer num;
+
+    /**
+     * 供应商ID
+     */
+    private Long supplierId;
+
+    /**
+     * 理论到货时间
+     */
+    private LocalDateTime theoryTime;
+
+    /**
+     * 理论数量
+     */
+    private Integer theoryNum;
 
 
 }

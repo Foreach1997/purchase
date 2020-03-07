@@ -1,5 +1,7 @@
 package com.pu.purchase.entity;
 
+import java.math.BigDecimal;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
@@ -8,7 +10,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 用户表
+ * 
  * </p>
  *
  * @author 
@@ -17,41 +19,29 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class User implements Serializable {
+@TableName("supplier_score")
+public class SupplierScore implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 用户id
-     */
     private Long id;
 
     /**
-     * 用户名
+     * 积分
      */
-    private String userName;
+    private BigDecimal supplierScore;
 
-    /**
-     * 密码
-     */
-    private String password;
-
-    /**
-     * `
-     */
     private LocalDateTime createTime;
 
-    private String createName;
+    /**
+     * 货品id
+     */
+    private Long materialId;
 
     /**
-     * 账号邮箱
+     * 供应商ID
      */
-    private String email;
-
-    /**
-     * 电话
-     */
-    private String phone;
+    private Long supplierId;
 
 
 }

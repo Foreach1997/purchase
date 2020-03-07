@@ -23,7 +23,7 @@ public class DeliverFormVo extends DeliverForm implements Serializable {
     /**
      * 供应商ID
      */
-    private Integer supplierId;
+    //private Long supplierId;
 
 
 }

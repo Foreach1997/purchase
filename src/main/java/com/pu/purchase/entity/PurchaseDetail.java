@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-07
+ * @since 2020-03-08
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -52,6 +52,16 @@ public class PurchaseDetail implements Serializable {
      * 采购价格
      */
     private BigDecimal purchasePrice;
+
+    /**
+     * 供应商ID
+     */
+    private Long supplierId;
+
+    /**
+     * 理论单价
+     */
+    private BigDecimal price;
 
 
 }

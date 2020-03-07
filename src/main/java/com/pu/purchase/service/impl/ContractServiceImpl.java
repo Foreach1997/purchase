@@ -2,14 +2,8 @@ package com.pu.purchase.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.pu.purchase.entity.Contract;
-import com.pu.purchase.entity.PurchaseDetail;
-import com.pu.purchase.entity.PurchaseForm;
-import com.pu.purchase.entity.Supplier;
-import com.pu.purchase.mapper.ContractMapper;
-import com.pu.purchase.mapper.PurchaseDetailMapper;
-import com.pu.purchase.mapper.PurchaseFormMapper;
-import com.pu.purchase.mapper.SupplierMapper;
+import com.pu.purchase.entity.*;
+import com.pu.purchase.mapper.*;
 import com.pu.purchase.service.IContractService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pu.purchase.util.DateUtils;
@@ -44,25 +38,28 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
     private ContractMapper contractMapper;
     @Resource
     private SupplierMapper supplierMapper;
+    @Resource
+    private DeliverFormMapper deliverFormMapper;
 
     public Object sendContract(String no){
         PurchaseForm purchaseForm = purchaseFormMapper.selectOne(new QueryWrapper<PurchaseForm>().eq("no", no));
         if(StringUtils.isNotBlank(purchaseForm.getContractNo())){
             return RepResult.repResult(0, "该采购单已有合同", null);
         }
+        DeliverForm deliverForm = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("purchase_no", no));
 
         PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", no));
 
-        Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", purchaseForm.getSupplierId()));
+        Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", deliverForm.getSupplierId()));
 
         Contract contract = new Contract();
-        contract.setNo("N"+new Date().getTime());
+        contract.setNo("N"+System.currentTimeMillis());
         contract.setCreateDate(LocalDateTime.now());
         contract.setStatus(0);
         contract.setCreatePerson(WebUtils.getCurrentUserName());
         contract.setUpdateDate(LocalDateTime.now());
         contract.setUpdatePerson(WebUtils.getCurrentUserName());
-        contract.setSupplierId(purchaseForm.getSupplierId());
+        contract.setSupplierId(deliverForm.getSupplierId());
         contract.setValidateDateBegin(LocalDateTime.now());
         contract.setValidateDateEnd(DateUtils.getLocalDateTime(DateUtils.getDateAdd(7)));
         if(1!=contractMapper.insert(contract)){

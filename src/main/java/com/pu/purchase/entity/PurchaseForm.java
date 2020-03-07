@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-07
+ * @since 2020-03-08
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -27,11 +27,6 @@ public class PurchaseForm implements Serializable {
      * 采购单号
      */
     private String no;
-
-    /**
-     * 供应商ID
-     */
-    private Integer supplierId;
 
     /**
      * 合同编号
