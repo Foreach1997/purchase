@@ -80,7 +80,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
             }
             return purchaseFormDto;
         }).collect(Collectors.toList());
-        return RepResult.repResult(0, "查询成功", dtoList, (int)purchaseFormPage.getTotal());
+        return RepResult.repResult(0, "查询成功", dtoList, purchaseFormPage.getTotal());
     }
 
     public Object insertSelective(PurchaseFormVo record) {

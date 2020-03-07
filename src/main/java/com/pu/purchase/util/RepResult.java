@@ -16,7 +16,7 @@ public class RepResult implements Serializable {
         return res;
     }
 
-    public static JSONObject repResult(int code,String msg,Object data,int count){
+    public static JSONObject repResult(int code,String msg,Object data,Long count){
         JSONObject res = new JSONObject();
         res.put("code",code);
         res.put("msg",msg);

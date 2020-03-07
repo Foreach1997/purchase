@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pu.purchase.mapper.PurchaseExtendMapper">
+
+
+    <select id="staticficPurchase" resultType="com.pu.purchase.vo.StaticficPurchaseVO" parameterType="com.pu.purchase.vo.ReqStaticfic">
+        SELECT product_no as "productNo",
+        SUM(purchase_quality) as "purchaseQuality",
+        SUM(qualified_quality) as "qualifiedQuality",
+        SUM(storage_quality) as "storageQuality",
+        SUM(purchase_price) as "purchasePrice"
+        FROM  purchase_detail as pd,material as m
+        where m.id = purchase_detail.product_no
+        GROUP by product_no
+        order by storage_quality DESC
+        <if test="current != null and current !='' or
+                        size != null and size !=''">
+            LIMIT #{size} OFFSET #{current}
+        </if>
+    </select>
+
+
+
+
+
+</mapper>

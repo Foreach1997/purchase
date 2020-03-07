@@ -110,6 +110,7 @@ public class MybatisPlusUtils {
         //strategy.setSuperEntityClass("你自己的父类实体,没有就不用设置!");
         strategy.setEntityLombokModel(true);
         strategy.setRestControllerStyle(false);
+        strategy.setEntitySerialVersionUID(true);
         // 公共父类
         //strategy.setSuperControllerClass("你自己的父类控制器,没有就不用设置!");
         // 写于父类中的公共字段

@@ -2,6 +2,10 @@ package com.pu.purchase.service;
 
 import com.pu.purchase.entity.PurchaseDetail;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.pu.purchase.vo.ReqStaticfic;
+import com.pu.purchase.vo.StaticficPurchaseVO;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +16,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2020-03-01
  */
 public interface IPurchaseDetailService extends IService<PurchaseDetail> {
+
+
+    List<StaticficPurchaseVO> staticficPurchase(ReqStaticfic reqStaticfic);
+
 
 }

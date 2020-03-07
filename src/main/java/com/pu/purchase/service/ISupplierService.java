@@ -13,4 +13,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ISupplierService extends IService<Supplier> {
 
+    /**
+     * 获取所有供应商
+     */
+    Object getAllSupplier(int current,int size,String supplier,String phonenum,Integer enabled);
+
+
 }

@@ -44,7 +44,7 @@ public class PurchaseForm implements Serializable {
     private String name;
 
     /**
-     * 采购类型：经销、代销、联营、包销、对方发货
+     * 采购类型：1经销、2代销、3联营、4包销、5对方发货
      */
     private Integer purchaseType;
 

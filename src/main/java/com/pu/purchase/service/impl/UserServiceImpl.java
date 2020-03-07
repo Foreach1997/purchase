@@ -68,7 +68,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             userDto.setId(user.getId().toString());
             return userDto;
         }).collect(Collectors.toList());
-        return RepResult.repResult(0, "查询成功", dtoList, (int)userPage.getTotal());
+        return RepResult.repResult(0, "查询成功", dtoList, userPage.getTotal());
     }
 
     public Object insertSelective(User record) {
