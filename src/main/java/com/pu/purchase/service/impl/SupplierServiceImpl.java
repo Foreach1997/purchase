@@ -34,7 +34,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     private SupplierMapper supplierMapper;
 
 
-   public  Object getAllSupplier(int current,int size,String supplier,String phonenum,Integer enabled){
+   @Override
+   public  Object getAllSupplier(int current, int size, String supplier, String phonenum, Integer enabled){
              IPage<Supplier> supplierIPage = new Page<>();
              supplierIPage.setSize(size);
              supplierIPage.setCurrent(current);
@@ -48,7 +49,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
 
     public Object getSupplierList(){
         List<Supplier> supplierList = supplierMapper.selectList(new QueryWrapper<Supplier>().eq("delete_flag", "0"));
-        return RepResult.repResult(0, "查询成功", supplierList, supplierList.size());
+        return RepResult.repResult(0, "查询成功", supplierList, (long) supplierList.size());
     }
 
 }

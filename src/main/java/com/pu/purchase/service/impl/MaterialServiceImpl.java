@@ -27,7 +27,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
 
     public Object getMaterialList(){
         List<Material> materials = materialMapper.selectList(new QueryWrapper<Material>().eq("delete_Flag", "0"));
-        return RepResult.repResult(0, "查询成功", materials, materials.size());
+        return RepResult.repResult(0, "查询成功", materials, (long) materials.size());
     }
 
 }

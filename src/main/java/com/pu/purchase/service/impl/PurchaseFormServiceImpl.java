@@ -79,7 +79,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
             purchaseFormDto.setCreateDate(DateUtils.dateFrString(purchaseForm.getCreateDate()));
             return purchaseFormDto;
         }).collect(Collectors.toList());
-        return RepResult.repResult(0, "查询成功", dtoList, (int) purchaseFormPage.getTotal());
+        return RepResult.repResult(0, "查询成功", dtoList, (long) purchaseFormPage.getTotal());
     }
 
     public Object insertSelective(PurchaseFormVo record) {
