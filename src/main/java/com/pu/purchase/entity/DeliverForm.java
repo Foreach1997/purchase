@@ -1,5 +1,6 @@
 package com.pu.purchase.entity;
 
+import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.time.LocalDateTime;
 import java.io.Serializable;
@@ -13,7 +14,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-03
+ * @since 2020-03-07
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -67,6 +68,16 @@ public class DeliverForm implements Serializable {
      * 更新时间
      */
     private LocalDateTime updateDate;
+
+    /**
+     * 单价
+     */
+    private BigDecimal price;
+
+    /**
+     * 数量
+     */
+    private Integer num;
 
 
 }

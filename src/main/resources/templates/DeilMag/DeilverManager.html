@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org"  lang="en">
 <head>
     <meta charset="UTF-8">
     <title>发货单</title>
@@ -23,6 +23,56 @@
     </style>
 </head>
 <body>
+<div style="width:100%;text-align:center">
+    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+        <legend>发货单</legend>
+    </fieldset>
+    <form  method="post" th:action="@{/submit}" th:object="${deli}" lay-filter="searchFrm">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">用户名称:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="userName" th:field="*{purNo}" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">用户名称:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="userName" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">用户名称:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="userName" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">用户名称:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="userName" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+        </div>
 
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="doSubmit">立即提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script th:inline="javascript">
+    $(function(){
+        var key = [[${key}]];
+        alert(key)
+    });
+</script>
 </body>
 </html>

@@ -2,8 +2,6 @@ package com.pu.purchase.entity;
 
 import java.time.LocalDateTime;
 import java.io.Serializable;
-
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -14,7 +12,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-03
+ * @since 2020-03-07
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
