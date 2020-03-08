@@ -29,11 +29,6 @@ public class PurchaseForm implements Serializable {
     private String no;
 
     /**
-     * 合同编号
-     */
-    private String contractNo;
-
-    /**
      * 名称
      */
     private String name;

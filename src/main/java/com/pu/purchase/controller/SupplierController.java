@@ -1,6 +1,7 @@
 package com.pu.purchase.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.pu.purchase.entity.DeliverForm;
 import com.pu.purchase.entity.PurchaseDetail;
 import com.pu.purchase.entity.Supplier;
 import com.pu.purchase.service.impl.PurchaseDetailServiceImpl;
@@ -9,6 +10,10 @@ import com.pu.purchase.util.RepResult;
 import com.pu.purchase.vo.ReqStaticfic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
 
 @RestController
 @CrossOrigin
@@ -21,6 +26,9 @@ public class SupplierController  {
 
     @Autowired
     private PurchaseDetailServiceImpl purchaseDetailServiceImpl;
+
+    @Autowired
+    BlockingQueue<DeliverForm> sendDeliverFormQueue;
 
     /**
      * 获取全部供应商
@@ -66,5 +74,32 @@ public class SupplierController  {
         int count = purchaseDetailServiceImpl.staticficPurchase(r).size();
         return RepResult.repResult(0,"成功",purchaseDetailServiceImpl.staticficPurchase(reqStaticfic), (long) count);
     }
+
+    /**
+     * 选择供应商
+     */
+    @GetMapping("/choiceSupplier")
+    public Object choiceSupplier(int current,int size,Long materialId){
+        return   supplierServiceImpl.getAllSupplierScore(current,size,materialId);
+    }
+
+    /**
+     * 创建发货第一步
+     */
+    @PostMapping("/addPurchase")
+    public Object addPurchase(@RequestBody List<DeliverForm> deliverForms){
+        return null;
+    }
+
+    /**
+     * 创建发货第一步
+     */
+    @GetMapping("/test")
+    public Object test() throws InterruptedException {
+        sendDeliverFormQueue.add(new DeliverForm().setDeliverPerson("1231"));
+        return sendDeliverFormQueue.take();
+    }
+
+
 
 }

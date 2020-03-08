@@ -35,7 +35,7 @@ public class DeliverForm implements Serializable {
     private String purchaseNo;
 
     /**
-     * 状态：-1已作废0待确认1已确认2已完成
+     * 状态：-1已作废0待确认1已确认2已完成3已退货4已到货
      */
     private Integer status;
 
@@ -85,7 +85,7 @@ public class DeliverForm implements Serializable {
     private Long supplierId;
 
     /**
-     * 理论到货时间
+     * 理论到货时间(供应商)
      */
     private LocalDateTime theoryTime;
 

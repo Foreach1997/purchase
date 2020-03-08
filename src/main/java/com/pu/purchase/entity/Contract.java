@@ -27,6 +27,11 @@ public class Contract implements Serializable {
     private String no;
 
     /**
+     * 采购单号
+     */
+    private String purchaseNo;
+
+    /**
      * 供应商ID
      */
     private Long supplierId;
@@ -42,7 +47,7 @@ public class Contract implements Serializable {
     private LocalDateTime validateDateEnd;
 
     /**
-     * 状态：-1已作废0待审核1已审核
+     * 状态：-1已作废0待审核1已审核3.已完成
      */
     private Integer status;
 

@@ -41,7 +41,7 @@ public class SendEmail {
         Transport ts = session.getTransport();
 
         //3、使用邮箱的用户名和授权码连上邮件服务器
-        ts.connect("smtp.qq.com", "166745148@qq.com", "bvtiwptsqtfucabg");
+        ts.connect("smtp.qq.com", "1667445148@qq.com", "bvtiwptsqtfucabg");
 
         //4、创建邮件
 

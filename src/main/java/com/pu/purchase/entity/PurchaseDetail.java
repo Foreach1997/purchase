@@ -2,6 +2,7 @@ package com.pu.purchase.entity;
 
 import java.math.BigDecimal;
 import com.baomidou.mybatisplus.annotation.TableName;
+import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -54,14 +55,14 @@ public class PurchaseDetail implements Serializable {
     private BigDecimal purchasePrice;
 
     /**
-     * 供应商ID
-     */
-    private Long supplierId;
-
-    /**
      * 理论单价
      */
     private BigDecimal price;
+
+    /**
+     * 理论到货时间(采购员)
+     */
+    private LocalDateTime arriveTime;
 
 
 }
