@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.pu.purchase.entity.DeliverForm;
 import com.pu.purchase.entity.PurchaseDetail;
 import com.pu.purchase.entity.Supplier;
+import com.pu.purchase.service.impl.DeliverFormServiceImpl;
 import com.pu.purchase.service.impl.PurchaseDetailServiceImpl;
 import com.pu.purchase.service.impl.SupplierServiceImpl;
 import com.pu.purchase.util.RepResult;
@@ -29,6 +30,9 @@ public class SupplierController  {
 
     @Autowired
     BlockingQueue<DeliverForm> sendDeliverFormQueue;
+
+    @Autowired
+    private DeliverFormServiceImpl deliverFormServiceImpl;
 
     /**
      * 获取全部供应商
@@ -88,7 +92,11 @@ public class SupplierController  {
      */
     @PostMapping("/addPurchase")
     public Object addPurchase(@RequestBody List<DeliverForm> deliverForms){
-        return null;
+        for (DeliverForm deliverForm : deliverForms) {
+            deliverForm.setNo("SN"+System.currentTimeMillis());
+            deliverFormServiceImpl.save(deliverForm);
+        }
+        return RepResult.repResult(0,"成功",null);
     }
 
     /**
@@ -100,6 +108,16 @@ public class SupplierController  {
         return sendDeliverFormQueue.take();
     }
 
-
+    /**
+     * 更新deliver_form
+     */
+    @PostMapping("/updateDeliverForm")
+    public Object updateDeliverForm(@RequestBody DeliverForm deliverForm){
+        deliverForm.setStatus(1);
+      Boolean flag =  deliverFormServiceImpl.update(deliverForm,new QueryWrapper<DeliverForm>().lambda()
+                .eq(DeliverForm::getNo,deliverForm.getNo())
+                .eq(DeliverForm::getStatus,0));
+      return RepResult.repResult(0,"",flag);
+    }
 
 }

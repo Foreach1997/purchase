@@ -8,12 +8,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pu.purchase.config.BizException;
 import com.pu.purchase.dto.PurchaseFormDto;
-import com.pu.purchase.entity.PurchaseDetail;
-import com.pu.purchase.entity.PurchaseForm;
-import com.pu.purchase.entity.Supplier;
+import com.pu.purchase.entity.*;
 import com.pu.purchase.mapper.PurchaseDetailMapper;
 import com.pu.purchase.mapper.PurchaseFormMapper;
 import com.pu.purchase.mapper.SupplierMapper;
+import com.pu.purchase.mapper.SupplierScoreMapper;
 import com.pu.purchase.service.IPurchaseFormService;
 import com.pu.purchase.util.DateUtils;
 import com.pu.purchase.util.RepResult;
@@ -54,6 +53,8 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
     private PurchaseDetailMapper purchaseDetailMapper;
     @Resource
     private SupplierMapper supplierMapper;
+    @Resource
+    private SupplierScoreMapper supplierScoreMapper;
 
 
     public Object queryAllPurchaseForm(PurchaseFormVo purchaseFormVo) {
@@ -103,6 +104,17 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         purchaseDetail.setPurchaseNo(time.toString());
         if (1 != purchaseDetailMapper.insert(purchaseDetail)) {
             throw new BizException("添加采购单详情失败");
+        }
+        List<SupplierScore> supplierScores = supplierScoreMapper.selectList(new QueryWrapper<SupplierScore>().lambda()
+                .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo())
+                .orderByDesc(SupplierScore::getSupplierScore)
+                .last("limit 3"));
+        for (SupplierScore score : supplierScores) {
+            DeliverForm deliver = new DeliverForm();
+            deliver.setSupplierId(score.getId());
+            deliver.setUpdateDate(LocalDateTime.now());
+            deliver.setPurchaseNo(purchaseDetail.getPurchaseNo());
+            deliver.setNo("SN"+System.currentTimeMillis());
         }
         return RepResult.repResult(0, "添加成功", null);
     }

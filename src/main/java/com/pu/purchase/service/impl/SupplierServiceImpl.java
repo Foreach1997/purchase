@@ -52,8 +52,6 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     private DeliverFormMapper deliverFormMapper;
     @Resource
     private SupplierScoreMapper supplierScoreMapper;
-    @Autowired
-    BlockingQueue<DeliverForm> sendDeliverFormQueue;
 
 
    @Override
@@ -86,8 +84,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                    .multiply(new BigDecimal(40));
              score = score.add(rateScore);
          DeliverForm  deliverForms =  deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().lambda()
-                    .eq(DeliverForm::getPurchaseNo,purchaseNo)
-                    .eq(DeliverForm::getSupplierId,purchaseDetail.getSupplierId()));
+                    .eq(DeliverForm::getPurchaseNo,purchaseNo));
          //单价分数占 30/100
          BigDecimal priceRate = purchaseDetail.getPrice().subtract(deliverForms.getPrice())
                  .divide(purchaseDetail.getPrice(),2,RoundingMode.HALF_UP);
@@ -185,6 +182,4 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
        return  deliverFormMapper.insert(deliverForm);
     }
 
-    public static void main(String[] args) throws GeneralSecurityException, MessagingException {
-    }
 }
