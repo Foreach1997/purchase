@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>采购单列表</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="../layui/css/layui.css" media="all" />
+    <script src="../config/config.js"></script>
+    <link rel="stylesheet" href="../layui/layui.all.js" media="all" />
+    <link rel="stylesheet" href="../js/jquery-3.4.1.js" media="all" />
+    <link rel="stylesheet" href="../layui_ext/dtree/dtree.css" media="all" />
+    <link rel="stylesheet" href="../layui_ext/dtree/font/dtreefont.css" media="all" />
+    <style type="text/css">
+        .select-test{position: absolute;max-height: 500px;height: 350px;overflow: auto;width: 100%;z-index: 123;display: none;border:1px solid silver;top: 42px;}
+        .layui-show{display: block!important;}
+    </style>
+</head>
+<body  class="childrenBody">
+<!-- 查询条件开始 -->
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>查询条件</legend>
+</fieldset>
+<form class="layui-form" action="" id="searchFrm" >
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label">采购单号:</label>
+            <div class="layui-input-inline">
+                <input type="text" name="purchaseNo" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label">供应商</label>
+            <div class="layui-input-inline">
+                <select name="supplierId" id="supplierIdAdd" >
+                </select>
+            </div>
+        </div>
+        <div class="layui-inline">
+            <button type="button" class="layui-btn" id="doSearch" >查询</button>
+            <button type="reset" class="layui-btn layui-btn-primary" id="doReload">清空</button>
+        </div>
+    </div>
+</form>
+<!-- 查询条件结束 -->
+<!-- 数据表格开始 -->
+<table class="layui-hide" lay-filter="userTable" id="userTable"></table>
+
+<div class="layui-hide" id="userBar">
+    <a class="layui-btn layui-btn-xs" lay-event="contract">核对入库</a>
+</div>
+
+<!-- 添加和修改弹出层 -->
+<div style="display: none; padding: 10px" id="addOrUpdateView">
+    <form class="layui-form" action="" method="post" id="dataFrm" lay-filter="dataFrm">
+
+    </form>
+</div>
+<!-- 数据表格结束 -->
+<script type="text/javascript" src="../layui/layui.js"></script>
+<script type="text/javascript" src="../layui_ext/dist/dtree.js"></script>
+
+<script type="text/javascript">
+    var tableIns;//提升作用域
+
+    layui.config({
+        base : "../layui_ext/dist/"
+    }).extend({
+        "dtree" : "dtree"
+    })
+    layui.use(["form","table","jquery","upload","layer","dtree",'laydate'],function(){
+        var table=layui.table;
+        var form=layui.form;
+        var $=layui.jquery;
+        var layer=layui.layer;
+        var laydate = layui.laydate;
+        var upload = layui.upload;
+        laydate.render({
+            elem:"#hiredate"
+        });
+        tableIns=table.render({
+            elem: '#userTable'
+            ,url: dev+'mater/loadAllDeliver'
+            ,page:true
+            ,height:'full-130'
+            ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
+            ,cols: [ [
+                {field:'no', width: 200, align:'center', title: '发货单号' },
+                {field:'purchaseNo', width: 150, align:'center', title: '采购单号' },
+                {field:'status', width:200, title: '状态', align:'center', templet: function(obj){
+                        if(obj.status===-1){
+                            return '已作废'
+                        }else if(obj.status===0){
+                            return '待确认'
+                        }else if(obj.status===1){
+                            return '已确认'
+                        }else if(obj.status===2){
+                            return '已完成'
+                        }else if(obj.status===3){
+                            return '已退货'
+                        }else if(obj.status===4){
+                            return '已到货'
+                        }
+                    }},
+                {field:'deliverPerson', width:130, align:'center', title: '发货人'},
+                {field:'price', width:130, align:'center', title: '单价'},
+                {field:'num', width:130, align:'center', title: '数量'},
+                {field:'theoryNum', width:130, align:'center', title: '我方需要数量'},
+                {field:'deliverPerson', width:130, align:'center', title: '发货人'},
+                {field:'deliverDate', width:200, align:'center', title: '对方发货时间'},
+                {field:'theoryTime', width:200, align:'center', title: '对方承诺到货时间'},
+                {field:'updatePerson', title: '更新人', align:'center',width: 150},
+                {field:'updateDate', title: '更新时间' ,align:'center',width: 150},
+                {field:'createTime', title: '创建时间',align:'center', width: 200},
+                {fixed: 'right', title:'操作',align:'center', toolbar: '#userBar', width:250}
+            ] ]
+
+        });
+        //模糊查询
+        $("#doSearch").click(function(){
+            var params=$("#searchFrm").serialize();
+            tableIns.reload({
+                url:dev+'mater/loadAllDeliver?'+params
+            })
+        });
+        $("#doReload").click(function(){
+            tableIns.reload({
+                url:dev+'mater/loadAllDeliver'
+            })
+        });
+        //监听头工具行的事件
+        table.on('toolbar(userTable)', function(obj){
+            switch(obj.event){
+                case 'addPurchase':
+                    openAddUserView();
+                    break;
+            };
+        });
+
+        //监听行工具行的事件
+        table.on('tool(userTable)', function(obj){ //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+            var data = obj.data; //获得当前行数据
+            var layEvent=obj.event;
+            if(layEvent === 'contract'){
+                contractView(data);
+            }
+        });
+        function  contractView(data){
+            layer.open({
+                btn: ['通过', '不通过']
+                ,yes: function(index, layero){
+                    $.ajax({
+                        type: "get",
+                        url: dev + "mater/updateDeliver",
+                        async: false,
+                        data: {
+                            no: data.no,
+                            status: 4
+                        },
+                        success: function (res) {
+                            layer.msg(res.msg);
+                            reloadTable();
+                        }
+                    })
+                },btn2: function(index, layero){
+                    $.ajax({
+                        type: "get",
+                        url: dev + "mater/updateDeliver",
+                        async: false,
+                        data: {
+                            no: data.no,
+                            status: 3
+                        },
+                        success: function (res) {
+                            layer.msg(res.msg);
+                            reloadTable();
+                        }
+                    })
+                }
+            });
+        };
+        //初始化查询供应商的下拉列表
+        $.get(dev+"/plan/supplier",function(obj){
+            obj = obj.data;
+            var providerId = $("#supplierId");
+            var providerIdAdd =  $("#supplierIdAdd");
+            var html="<option value=''>请选择供应商</option>";
+            $.each(obj,function(index,item){
+                html+="<option value="+item.id+">"+item.supplier+"</option>"
+            });
+            providerId.html(html);
+            providerIdAdd.html(html);
+            form.render("select");
+        });
+    });
+    //刷新的方法
+    function reloadTable(){
+        tableIns.reload({
+            url:dev+'mater/loadAllDeliver',
+            page:{
+                curr:1
+            }
+        })
+    }
+</script>
+</body>
+</html>

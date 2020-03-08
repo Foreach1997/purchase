@@ -27,47 +27,43 @@
 <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
     <legend>查询条件</legend>
 </fieldset>
-<form class="layui-form" action="" id="searchFrm" method="post" lay-filter="searchFrm">
-    <div class="layui-form-item">
-        <div class="layui-inline">
-            <label class="layui-form-label">单号:</label>
-            <div class="layui-input-inline">
-                <input type="text" name="no" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-inline">
-            <label class="layui-form-label">供应商</label>
-            <div class="layui-input-inline">
-                <select name="supplierId" id="supplierIdAdd" >
-                </select>
-            </div>
-        </div>
-        <div class="layui-inline">
-            <label class="layui-form-label">采购单名称:</label>
-            <div class="layui-input-inline">
-                <input type="text" name="name" autocomplete="off" class="layui-input">
-            </div>
-        </div>
-        <div class="layui-inline">
-            <label class="layui-form-label">状态</label>
-            <div class="layui-input-inline">
-                <select name="status" lay-search="">
-                    <option value="">直接选择</option>
-                    <option value="-1">已作废</option>
-                    <option value="0">待确认</option>
-                    <option value="1">已确认</option>
-                    <option value="2">已完成</option>
-                </select>
-            </div>
-        </div>
-        <div class="layui-form-item" style="text-align: center;">
+<div style="text-align: center;">
+    <form class="layui-form" action="" id="searchFrm" method="post" lay-filter="searchFrm">
+        <div class="layui-form-item">
             <div class="layui-inline">
-                <button type="button" class="layui-btn" id="doSearch" >查询</button>
-                <button type="reset" class="layui-btn layui-btn-primary" id="doReload">清空</button>
+                <label class="layui-form-label">单号:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="no" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">采购单名称:</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="name" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">状态</label>
+                <div class="layui-input-inline">
+                    <select name="status" lay-search="">
+                        <option value="">直接选择</option>
+                        <option value="-1">已作废</option>
+                        <option value="0">待确认</option>
+                        <option value="1">已确认</option>
+                        <option value="2">已完成</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item" style="text-align: center;">
+                <div class="layui-inline">
+                    <button type="button" class="layui-btn" id="doSearch" >查询</button>
+                    <button type="reset" class="layui-btn layui-btn-primary" id="doReload">清空</button>
+                </div>
             </div>
         </div>
-    </div>
-</form>
+    </form>
+</div>
+
 <!-- 查询条件结束 -->
 <!-- 数据表格开始 -->
 <table class="layui-hide" lay-filter="userTable" id="userTable"></table>
@@ -99,15 +95,6 @@
         </div>
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">供应商</label>
-                <div class="layui-input-inline">
-                    <select name="supplierId" id="supplierId" >
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
                 <label class="layui-form-label">产品</label>
                 <div class="layui-input-inline">
                     <select name="productNo" id="productNo" >
@@ -130,6 +117,14 @@
                 <div class="layui-input-inline">
                     <input type="text" name="purchasePrice" id="purchasePrice"
                            autocomplete="off" placeholder="请输入采购价格" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">理论到货时间:</label>
+                <div class="layui-input-block">
+                    <input  name="arriveTime" id="date1" lay-verify="required" autocomplete="off" class="layui-input">
                 </div>
             </div>
         </div>
@@ -163,7 +158,7 @@
         var laydate = layui.laydate;
         var upload = layui.upload;
         laydate.render({
-            elem:"#hiredate"
+            elem:"#date1"
         });
         tableIns=table.render({
             elem: '#userTable'
@@ -173,12 +168,9 @@
             ,height:'full-130'
             ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
             ,cols: [ [
-                {field:'no', width: 140, title: '采购单号' },
-                {field:'name', width: 80, title: '名称' },
-                {field:'contractNo', width:150, title: '合同编号'},
-                {field:'supplierName', width:130, title: '供应商'},
-                // {field:'supplierName', width:100, title: '供应商名称'},
-                {field:'status', width:80, title: '状态',templet: function(obj){
+                {field:'no', width: 140, align:'center', title: '采购单号' },
+                {field:'name', width: 80,align:'center', title: '名称' },
+                {field:'status', width:80,align:'center', title: '状态',templet: function(obj){
                     if(obj.status==='-1'){
                         return '已作废'
                     }else if(obj.status==='0'){
@@ -189,28 +181,17 @@
                         return '已完成'
                     }
                 }},
-                {field:'productNo', title: '货品编号',width: 100},
-                {field:'purchaseQuality', title: '采购数量', width: 100},
-                {field:'qualifiedQuality', title: '合格数量', width: 100},
-                {field:'storageQuality', title: '已入库数量', width: 110},
-                {field:'purchasePrice', title: '采购价格', width: 100},
-                {field:'createPerson', title: '记录生成人', width: 110},
-                {field:'createDate', title: '记录生成时间', width: 180},
-                {field:'updateDate', title: '更新时间', width: 180},
+                {field:'productNo', title: '货品编号',align:'center',width: 100},
+                {field:'purchaseQuality', title: '采购数量',align:'center', width: 100},
+                {field:'qualifiedQuality', title: '合格数量',align:'center', width: 100},
+                {field:'storageQuality', title: '已入库数量',align:'center', width: 110},
+                {field:'purchasePrice', title: '采购价格',align:'center', width: 100},
+                {field:'createPerson', title: '记录生成人',align:'center', width: 110},
+                {field:'createDate', title: '记录生成时间',align:'center', width: 180},
+                {field:'updateDate', title: '更新时间',align:'center', width: 180},
                 {fixed: 'right', title:'操作',align:'center', toolbar: '#userBar', width:250}
             ] ]
-            ,done:function(res, curr){
-                var brforeCurr = curr; // 获得当前页码
-                var dataLength = res.data.length; // 获得当前页的记录数
-                var count = res.count; // 获得总记录数
-                if(dataLength === 0 && count !== 0){ //如果当前页的记录数为0并且总记录数不为0
-                    table.reload("userTable",{ // 刷新表格到上一页
-                        page:{
-                            curr:brforeCurr-1
-                        }
-                    });
-                }
-            }
+
         });
         //模糊查询
         $("#doSearch").click(function(){
@@ -253,7 +234,7 @@
                 type:1,
                 title:'添加采购单',
                 content:$("#addOrUpdateView"),
-                area:['400px','500px'],
+                area:['400px','450px'],
                 skin:'layui-layer-molv',
                 maxmin:true,
                 success:function(layero, index){
@@ -284,7 +265,7 @@
                 type:1,
                 title:'修改用户',
                 content:$("#addOrUpdateView"),
-                area:['400px','500px'],
+                area:['400px','450px'],
                 skin:'layui-layer-molv',
                 maxmin:true,
                 success:function(layero, index){
@@ -298,7 +279,7 @@
 
         //生成合同并发送邮件
         function contractView(data){
-            layer.confirm('确认后将给【'+data.supplierName+'】发送邮件', function(index){
+            layer.confirm('确认后将给供应商发送邮件', function(index){
                 $.get(dev+"plan/contract",{no:data.no},function(reslult){
                     layer.msg(reslult.msg);
                     layer.close(index);
@@ -319,21 +300,6 @@
                 })
             });
         };
-
-
-        //初始化查询供应商的下拉列表
-        $.get(dev+"/plan/supplier",function(obj){
-            obj = obj.data;
-            var providerId = $("#supplierId");
-            var providerIdAdd =  $("#supplierIdAdd");
-            var html="<option value=''>请选择供应商</option>";
-            $.each(obj,function(index,item){
-                html+="<option value="+item.id+">"+item.supplier+"</option>"
-            });
-            providerId.html(html);
-            providerIdAdd.html(html);
-            form.render("select");
-        });
 
         upload.render({
             elem: '#test3'

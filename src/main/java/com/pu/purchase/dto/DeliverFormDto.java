@@ -7,32 +7,37 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class PurchaseFormDto implements Serializable {
-
+public class DeliverFormDto implements Serializable {
     /**
-     * 采购单号
+     * 发货单号
      */
     private String no;
 
     /**
-     * 合同编号
+     * 采购单号
      */
-    private String contractNo;
-
-    /**
-     * 名称
-     */
-    private String name;
+    private String purchaseNo;
 
     /**
      * 状态：-1已作废0待确认1已确认2已完成
      */
-    private String status;
+    private Integer status;
+
+    /**
+     * 对方发货人
+     */
+    private String deliverPerson;
+
+    /**
+     * 对方发货时间
+     */
+    private String deliverDate;
 
     /**
      * 记录生成人
      */
     private String createPerson;
+
     /**
      * 记录生成时间
      */
@@ -48,29 +53,28 @@ public class PurchaseFormDto implements Serializable {
      */
     private String updateDate;
 
+    /**
+     * 单价
+     */
+    private BigDecimal price;
 
     /**
-     * 货品编号
+     * 数量
      */
-    private String productNo;
-    /**
-     * 采购数量
-     */
-    private Integer purchaseQuality;
+    private Integer num;
 
     /**
-     * 合格数量
+     * 供应商ID
      */
-    private Integer qualifiedQuality;
+    private Long supplierId;
 
     /**
-     * 已入库数量
+     * 理论到货时间
      */
-    private Integer storageQuality;
+    private String theoryTime;
 
     /**
-     * 采购价格
+     * 理论数量
      */
-    private BigDecimal purchasePrice;
-
+    private Integer theoryNum;
 }
