@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>用户管理-用户列表</title>
+    <title>商品管理</title>
     <meta name="renderer" content="webkit">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta http-equiv="Access-Control-Allow-Origin" content="*">
@@ -30,9 +30,9 @@
 <form action="" id="searchFrm" method="post" lay-filter="searchFrm">
     <div class="layui-form-item">
         <div class="layui-inline">
-            <label class="layui-form-label">用户名称:</label>
+            <label class="layui-form-label">商品名称:</label>
             <div class="layui-input-inline">
-                <input type="text" name="userName" autocomplete="off" class="layui-input">
+                <input type="text" name="name" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-inline">
@@ -47,8 +47,9 @@
 
 <div class="layui-hide" id="userToolbar">
     <div class="layui-btn-container">
-        <button class="layui-btn layui-btn-sm"  lay-event="addUser">添加用户</button>
+        <button class="layui-btn layui-btn-sm"  lay-event="addUser">添加商品</button>
     </div>
+
 </div>
 <div class="layui-hide" id="userBar">
     <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>
@@ -60,46 +61,14 @@
     <form class="layui-form" action="" method="post" id="dataFrm" lay-filter="dataFrm">
         <div class="layui-form-item">
             <div class="layui-inline">
-                <label class="layui-form-label">用户名称</label>
+                <label class="layui-form-label">商品名称</label>
                 <div class="layui-input-inline">
                     <input type="hidden" name="id">
-                    <input type="hidden" name="createName">
-                    <input type="text" name="userName" id="userName"
-                           autocomplete="off" placeholder="请输入用户名称" class="layui-input">
+                    <input type="text" name="name" id="userName"
+                           autocomplete="off" placeholder="请输入商品名称" class="layui-input">
                 </div>
             </div>
         </div>
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">密码</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="password" id="password"
-                           autocomplete="off" placeholder="密码" class="layui-input">
-                </div>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">邮箱</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="email" id="email" lay-verify="email"
-                           autocomplete="off" placeholder="请输入邮箱" class="layui-input">
-                </div>
-            </div>
-        </div>
-
-        <div class="layui-form-item">
-            <div class="layui-inline">
-                <label class="layui-form-label">手机号</label>
-                <div class="layui-input-inline">
-                    <input type="text" name="phone" id="phone"
-                           autocomplete="off" placeholder="请输入手机号" class="layui-input">
-                </div>
-            </div>
-        </div>
-
-
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button class="layui-btn" lay-submit="" lay-filter="doSubmit">立即提交</button>
@@ -122,6 +91,7 @@
         "dtree" : "dtree"
     })
     layui.use(["form","table","jquery","layer","dtree",'laydate'],function(){
+
         var table=layui.table;
         var form=layui.form;
         var $=layui.jquery;
@@ -132,20 +102,15 @@
         });
         tableIns=table.render({
             elem: '#userTable'
-            ,url: dev+'user/loadAllUser'
+            ,url: dev+'mater/loadAllMaterial'
             ,toolbar: '#userToolbar'
             ,page:true
             ,height:'full-130'
             ,cellMinWidth: 80 //全局定义常规单元格的最小宽度，layui 2.2.1 新增
             ,cols: [ [
-                {field:'id', width: 200,align:'center', title: '用户id' },
-                {field:'userName', width: 150,align:'center', title: '用户名' },
-                {field:'email', width:200,align:'center', title: '邮箱'},
-                {field:'createName', width:130,align:'center', title: '创建人'},
-                {field:'password', width:200,align:'center', title: '密码'},
-                {field:'phone', title: '手机号',align:'center',width: 150},
-                {field:'createTime', title: '创建时间',align:'center', width: 200},
-                {fixed: 'right', title:'操作',align:'center', toolbar: '#userBar', width:250}
+                {field:'id', width:500, align:'center',  title: '商品id' },
+                {field:'name',  width:480, align:'center', title: '商品名称' },
+                {fixed: 'right',  width:500, title:'操作',align:'center', toolbar: '#userBar' }
             ] ]
 
         });
@@ -153,12 +118,12 @@
         $("#doSearch").click(function(){
             var params=$("#searchFrm").serialize();
             tableIns.reload({
-                url:dev+'user/loadAllUser?'+params
+                url:dev+'mater/loadAllMaterial?'+params
             })
         });
         $("#doReload").click(function(){
             tableIns.reload({
-                url:dev+'user/loadAllUser'
+                url:dev+'mater/loadAllMaterial'
             })
         });
         //监听头工具行的事件
@@ -186,9 +151,9 @@
         function openAddUserView(){
             mainIndex=layer.open({
                 type:1,
-                title:'添加用户',
+                title:'添加商品',
                 content:$("#addOrUpdateView"),
-                area:['400px','400px'],
+                area:['400px','200px'],
                 skin:'layui-layer-molv',
                 maxmin:true,
                 success:function(layero, index){
@@ -200,7 +165,7 @@
                     // $.get("/user/loadUserMaxOrderNum",function(obj){
                     //     $("#ordernum").val(obj.value);
                     // });
-                    url=dev+"user/addUser";
+                    url=dev+"mater/addMaterial";
                 }
             })
         };
@@ -223,25 +188,25 @@
         function openUpdateUserView(data){
             mainIndex=layer.open({
                 type:1,
-                title:'修改用户',
+                title:'修改商品',
                 content:$("#addOrUpdateView"),
-                area:['400px','400px'],
+                area:['400px','200px'],
                 skin:'layui-layer-molv',
                 maxmin:true,
                 success:function(layero, index){
                     //移除下拉列表展开的样式
                     $("#accordionDeptid").removeClass("layui-show layui-anim layui-anim-upbit");
                     form.val("dataFrm",data);
-                    url=dev+"user/updateUser";
+                    url=dev+"mater/updateMaterial";
                 }
             });
         };
 
         //删除用户
         function  deleteUserById(data){
-            layer.confirm('真的要删除【'+data.userName+'】这个用户么？', function(index){
+            layer.confirm('真的要删除【'+data.name+'】这个商品么？', function(index){
                 //向服务端发送删除指令
-                $.get(dev+"user/deleteUser",{id:data.id},function(reslult){
+                $.get(dev+"mater/deleteMaterial",{id:data.id},function(reslult){
                     layer.msg(reslult.msg);
                     layer.close(index);
                     //刷新数据表格
@@ -265,3 +230,4 @@
 </script>
 </body>
 </html>
+

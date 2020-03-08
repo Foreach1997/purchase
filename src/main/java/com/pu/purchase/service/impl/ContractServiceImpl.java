@@ -14,9 +14,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
+import java.rmi.MarshalledObject;
 import java.security.GeneralSecurityException;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.*;
 
 /**
  * <p>
@@ -31,49 +32,49 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
 
     @Resource
     private PurchaseDetailMapper purchaseDetailMapper;
-
-    @Resource
-    private PurchaseFormMapper purchaseFormMapper;
     @Resource
     private ContractMapper contractMapper;
     @Resource
-    private SupplierMapper supplierMapper;
+    private MaterialMapper materialMapper;
     @Resource
     private DeliverFormMapper deliverFormMapper;
+    @Resource
+    private SupplierServiceImpl supplierService;
 
     public Object sendContract(String no){
-        PurchaseForm purchaseForm = purchaseFormMapper.selectOne(new QueryWrapper<PurchaseForm>().eq("no", no));
-        if(StringUtils.isNotBlank(purchaseForm.getContractNo())){
-            return RepResult.repResult(0, "该采购单已有合同", null);
+        Contract purchaseNo = contractMapper.selectOne(new QueryWrapper<Contract>().eq("purchase_no", no));
+        if(null!=purchaseNo){
+            return RepResult.repResult(0, "您已发送过请勿重复发送", null);
         }
-        DeliverForm deliverForm = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("purchase_no", no));
 
-        PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", no));
-
-        Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", deliverForm.getSupplierId()));
-
-        Contract contract = new Contract();
-        contract.setNo("N"+System.currentTimeMillis());
-        contract.setCreateDate(LocalDateTime.now());
-        contract.setStatus(0);
-        contract.setCreatePerson(WebUtils.getCurrentUserName());
-        contract.setUpdateDate(LocalDateTime.now());
-        contract.setUpdatePerson(WebUtils.getCurrentUserName());
-        contract.setSupplierId(deliverForm.getSupplierId());
-        contract.setValidateDateBegin(LocalDateTime.now());
-        contract.setValidateDateEnd(DateUtils.getLocalDateTime(DateUtils.getDateAdd(7)));
-        if(1!=contractMapper.insert(contract)){
-            return RepResult.repResult(0, "生成合同失败", null);
+        List<DeliverForm> deliverFormList = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().eq("purchase_no", no));
+        Map<String,Map<String,String>> mapMap = new HashMap<>();
+        for (DeliverForm deliverForm : deliverFormList) {
+            Map<String,String> map = new HashMap<>();
+            Contract contract = new Contract();
+            String number = "N"+System.currentTimeMillis();
+            contract.setNo(number);
+            contract.setCreateDate(LocalDateTime.now());
+            contract.setStatus(0);
+            contract.setCreatePerson(WebUtils.getCurrentUserName());
+            contract.setUpdateDate(LocalDateTime.now());
+            contract.setUpdatePerson(WebUtils.getCurrentUserName());
+            contract.setSupplierId(deliverForm.getSupplierId());
+            contract.setPurchaseNo(deliverForm.getPurchaseNo());
+            contract.setValidateDateBegin(LocalDateTime.now());
+            contract.setValidateDateEnd(DateUtils.getLocalDateTime(DateUtils.getDateAdd(7)));
+            if(1!=contractMapper.insert(contract)){
+                return RepResult.repResult(0, "生成合同失败", null);
+            }
+            PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", no));
+            Material material = materialMapper.selectOne(new QueryWrapper<Material>().eq("id", purchaseDetail.getProductNo()));
+            map.put("no",number);
+            map.put("price",deliverForm.getPrice().toString());
+            map.put("num",deliverForm.getNum().toString());
+            map.put("name",material.getName());
+            mapMap.put(deliverForm.getSupplierId().toString(),map);
         }
-        purchaseForm.setContractNo(contract.getNo());
-        if(1!=purchaseFormMapper.update(purchaseForm,new QueryWrapper<PurchaseForm>().eq("no",purchaseForm.getNo()))){
-            return RepResult.repResult(0, "保存数据失败", null);
-        }
-        try {
-            SendEmail.send(supplier.getEmail(),"hehe");
-        } catch (Exception e) {
-            return RepResult.repResult(0, "发送邮件失败", null);
-        }
+        supplierService.sendEmail(mapMap);
         return RepResult.repResult(0, "生成合同完成并发送邮件成功", null);
     }
 

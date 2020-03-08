@@ -3,7 +3,8 @@ package com.pu.purchase.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.pu.purchase.entity.DeliverForm;
 import com.pu.purchase.entity.PurchaseDetail;
 import com.pu.purchase.entity.Supplier;
@@ -13,24 +14,24 @@ import com.pu.purchase.mapper.PurchaseDetailMapper;
 import com.pu.purchase.mapper.SupplierMapper;
 import com.pu.purchase.mapper.SupplierScoreMapper;
 import com.pu.purchase.service.ISupplierService;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pu.purchase.util.RepResult;
 import com.pu.purchase.util.SendEmail;
+import org.hibernate.validator.constraints.pl.REGON;
+import com.pu.purchase.util.RepResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.security.GeneralSecurityException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Period;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.BlockingQueue;
+import java.util.Map;
 
 
 /**
@@ -38,7 +39,7 @@ import java.util.concurrent.BlockingQueue;
  * 供应商/客户信息表 服务实现类
  * </p>
  *
- * @author 
+ * @author
  * @since 2020-03-01
  */
 @Service
@@ -84,7 +85,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                    .multiply(new BigDecimal(40));
              score = score.add(rateScore);
          DeliverForm  deliverForms =  deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().lambda()
-                    .eq(DeliverForm::getPurchaseNo,purchaseNo));
+                    .eq(DeliverForm::getPurchaseNo,purchaseNo)
+                    .eq(DeliverForm::getSupplierId,purchaseDetail.getSupplierId()));
          //单价分数占 30/100
          BigDecimal priceRate = purchaseDetail.getPrice().subtract(deliverForms.getPrice())
                  .divide(purchaseDetail.getPrice(),2,RoundingMode.HALF_UP);
@@ -121,6 +123,23 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             }
         }
         return RepResult.repResult(0,"成功",null);
+    }
+
+
+    @Async
+    public void sendEmail(Map<String,Map<String,String>> map){
+        for (String s : map.keySet()) {
+            Map<String,String> list = map.get(s);
+            Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", s));
+            String model = "尊敬的"+supplier.getSupplier()+"您好,我司向贵公司采购的价格为"+list.get("price")+"元的"+list.get("num")+"份"+list.get("name")+"。因双方意见达成一致，即日签订合同。点击链接即为签订。" ;
+            String url = model+"http://localhost:8080/deli/toContract?no="+list.get("no");
+            try {
+                SendEmail.send(supplier.getEmail(),url);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public BigDecimal getFastScore(BigDecimal score){

@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +61,6 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
     public Object queryAllPurchaseForm(PurchaseFormVo purchaseFormVo) {
         LambdaQueryWrapper<PurchaseForm> queryWrapper = new LambdaQueryWrapper<PurchaseForm>()
                 .eq(StringUtils.isNotBlank(purchaseFormVo.getNo()), PurchaseForm::getNo, purchaseFormVo.getNo())
-                //.eq(null != purchaseFormVo.getSupplierId(), PurchaseForm::getSupplierId, purchaseFormVo.getSupplierId())
                 .eq(StringUtils.isNotBlank(purchaseFormVo.getName()), PurchaseForm::getName, purchaseFormVo.getName())
                 .eq(null != purchaseFormVo.getStatus(), PurchaseForm::getStatus, purchaseFormVo.getStatus());
 
@@ -69,14 +69,12 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
             PurchaseFormDto purchaseFormDto = new PurchaseFormDto();
             BeanUtils.copyProperties(purchaseForm, purchaseFormDto);
             PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", purchaseForm.getNo()));
-            //Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", purchaseForm.getSupplierId()));
             purchaseFormDto.setProductNo(purchaseDetail.getProductNo());
             purchaseFormDto.setPurchaseQuality(purchaseDetail.getPurchaseQuality());
             purchaseFormDto.setQualifiedQuality(purchaseDetail.getQualifiedQuality());
             purchaseFormDto.setStorageQuality(purchaseDetail.getStorageQuality());
             purchaseFormDto.setPurchasePrice(purchaseDetail.getPurchasePrice());
             purchaseFormDto.setStatus(purchaseForm.getStatus().toString());
-            //purchaseFormDto.setSupplierName(supplier.getSupplier());
             purchaseFormDto.setUpdateDate(DateUtils.dateFrString(purchaseForm.getUpdateDate()));
             purchaseFormDto.setCreateDate(DateUtils.dateFrString(purchaseForm.getCreateDate()));
             return purchaseFormDto;
@@ -102,6 +100,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         purchaseDetail.setPurchasePrice(record.getPurchasePrice());
         purchaseDetail.setPurchaseQuality(record.getPurchaseQuality());
         purchaseDetail.setPurchaseNo(time.toString());
+        purchaseDetail.setArriveTime(DateUtils.getLocalDateTime(record.getArriveTime()));
         if (1 != purchaseDetailMapper.insert(purchaseDetail)) {
             throw new BizException("添加采购单详情失败");
         }
@@ -145,6 +144,9 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         if (1 != purchaseFormMapper.delete(new QueryWrapper<PurchaseForm>().eq("no", id))) {
             throw new BizException("删除采购单失败");
         }
+        if (1 != purchaseDetailMapper.delete(new QueryWrapper<PurchaseDetail>().eq("purchase_no", id))) {
+            throw new BizException("删除采购明细单失败");
+        }
         return RepResult.repResult(0, "删除成功", null);
     }
 
@@ -168,15 +170,16 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
             if (sheet1.getLastRowNum() == 0 && sheet1.getPhysicalNumberOfRows() == 0) {
                 return RepResult.repResult(0, "您的excel文件为空", null);
             } else {
-                for (int r = 0; r < totalRows; r++) {
+                for (int r = 1; r < totalRows; r++) {
                     PurchaseFormVo purchaseFormVo = new PurchaseFormVo();
                     Row row = sheet1.getRow(r);
                     purchaseFormVo.setName(Double.valueOf(String.valueOf(row.getCell(0) == null ? "" : row.getCell(0).toString())).intValue()+"");
-                    //purchaseFormVo.setSupplierId(Double.valueOf(String.valueOf(row.getCell(1) == null ? "" : row.getCell(1))).intValue());
-                    purchaseFormVo.setStatus(Double.valueOf(String.valueOf(row.getCell(2) == null ? "" : row.getCell(2))).intValue());
-                    purchaseFormVo.setProductNo(Double.valueOf(String.valueOf(row.getCell(3) == null ? "" : row.getCell(3))).intValue()+"");
-                    purchaseFormVo.setPurchaseQuality(Double.valueOf(String.valueOf(row.getCell(4) == null ? "" : row.getCell(4))).intValue());
-                    purchaseFormVo.setPurchasePrice(new BigDecimal(Double.valueOf(String.valueOf(row.getCell(5) == null ? "" : row.getCell(5)))));
+                    purchaseFormVo.setStatus(Double.valueOf(String.valueOf(row.getCell(1) == null ? "" : row.getCell(1))).intValue());
+                    purchaseFormVo.setProductNo(Double.valueOf(String.valueOf(row.getCell(2) == null ? "" : row.getCell(2))).intValue()+"");
+                    purchaseFormVo.setPurchaseQuality(Double.valueOf(String.valueOf(row.getCell(3) == null ? "" : row.getCell(3))).intValue());
+                    purchaseFormVo.setPurchasePrice(new BigDecimal(Double.valueOf(String.valueOf(row.getCell(4) == null ? "" : row.getCell(4)))));
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    purchaseFormVo.setArriveTime(simpleDateFormat.parse(String.valueOf(row.getCell(5) == null ? "" : row.getCell(5).toString())));
                     insertSelective(purchaseFormVo);
                 }
             }
