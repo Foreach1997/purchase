@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -165,7 +166,8 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
                     purchaseFormVo.setProductNo(Double.valueOf(String.valueOf(row.getCell(2) == null ? "" : row.getCell(2))).intValue()+"");
                     purchaseFormVo.setPurchaseQuality(Double.valueOf(String.valueOf(row.getCell(3) == null ? "" : row.getCell(3))).intValue());
                     purchaseFormVo.setPurchasePrice(new BigDecimal(Double.valueOf(String.valueOf(row.getCell(4) == null ? "" : row.getCell(4)))));
-//                    purchaseFormVo.setArriveTime();
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    purchaseFormVo.setArriveTime(simpleDateFormat.parse(String.valueOf(row.getCell(5) == null ? "" : row.getCell(5).toString())));
                     insertSelective(purchaseFormVo);
                 }
             }
