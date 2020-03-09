@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/deli")
@@ -25,6 +26,8 @@ public class DeliverController {
     private DeliverFormMapper deliverFormMapper;
     @Resource
     private PurchaseDetailMapper purchaseDetailMapper;
+    @Resource
+    private PurchaseFormMapper purchaseFormMapper;
     @Resource
     private MaterialMapper materialMapper;
     @Resource
@@ -77,6 +80,7 @@ public class DeliverController {
         deliverForm.setTheoryTime(DateUtils.getLocalDateTime(deliverFormVo.getTheoryTime()));
         deliverForm.setDeliverDate(LocalDateTime.now());
         deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()));
+
         modelAndView.setViewName("DeilMag/hello");
         return modelAndView;
     }
@@ -88,6 +92,18 @@ public class DeliverController {
     public ModelAndView toContract(String no) {
         ModelAndView modelAndView = new ModelAndView();
         Contract contract = contractMapper.selectOne(new QueryWrapper<Contract>().eq("no", no));
+        List<DeliverForm> deliverForms = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().eq("purchase_no", contract.getPurchaseNo()));
+        boolean bool = true;
+        for (DeliverForm deliverForm : deliverForms) {
+            if(1!=deliverForm.getStatus() && 2!=deliverForm.getStatus()){
+                bool = false;
+            }
+        }
+        if(bool){
+            PurchaseForm purchaseForm = purchaseFormMapper.selectOne(new QueryWrapper<PurchaseForm>().eq("no", contract.getPurchaseNo()));
+            purchaseForm.setStatus(2);
+            purchaseFormMapper.update(purchaseForm,new QueryWrapper<PurchaseForm>().eq("no",contract.getPurchaseNo()));
+        }
         contract.setStatus(3);
         contractMapper.update(contract, new QueryWrapper<Contract>().eq("no", no));
         ContractVo contractVo = new ContractVo();
