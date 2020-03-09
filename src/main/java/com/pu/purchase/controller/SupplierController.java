@@ -1,9 +1,13 @@
 package com.pu.purchase.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.pu.purchase.config.BizException;
 import com.pu.purchase.entity.DeliverForm;
 import com.pu.purchase.entity.PurchaseDetail;
 import com.pu.purchase.entity.Supplier;
+import com.pu.purchase.entity.SupplierScore;
+import com.pu.purchase.mapper.MaterialMapper;
+import com.pu.purchase.mapper.SupplierScoreMapper;
 import com.pu.purchase.service.impl.DeliverFormServiceImpl;
 import com.pu.purchase.service.impl.PurchaseDetailServiceImpl;
 import com.pu.purchase.service.impl.SupplierServiceImpl;
@@ -33,6 +37,13 @@ public class SupplierController  {
 
     @Autowired
     private DeliverFormServiceImpl deliverFormServiceImpl;
+
+    @Autowired
+    private SupplierScoreMapper supplierScoreMapper;
+
+    @Autowired
+    private MaterialMapper materialMapper;
+
 
     /**
      * 获取全部供应商
@@ -120,4 +131,23 @@ public class SupplierController  {
       return RepResult.repResult(0,"",flag);
     }
 
+    /**
+     * 插入供应商能提供的商品
+     */
+    @PostMapping("/insertSupplierScore")
+    public Object insertSupplierScore(@RequestBody SupplierScore supplierScore){
+       if (supplierScoreMapper.selectCount(new QueryWrapper<SupplierScore>().lambda()
+                .eq(SupplierScore::getMaterialId,supplierScore.getMaterialId()))>0){
+           throw  new BizException("当前供应商已经添加过改商品");
+       }
+       return RepResult.repResult(0,"", supplierScoreMapper.insert(supplierScore));
+    }
+
+    /**
+     * 选择供应商能提供的商品
+     */
+    @GetMapping("/selectSupplierScore")
+    public Object selectSupplierScore(){
+        return RepResult.repResult(0,"", materialMapper.selectList(new QueryWrapper<>()));
+    }
 }

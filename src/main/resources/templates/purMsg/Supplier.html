@@ -48,7 +48,7 @@
 <script type="text/html" id="barDemo">
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">编辑</a>
     <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="del">删除</a>
-<!--    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="choice">选择供应商</a>-->
+    <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="addProduct">选择供应商商品</a>
 </script>
 <script type="text/javascript">
     var edit;
@@ -115,6 +115,17 @@
                         shade: 0.8,
                         area: ['350px', '550px'],
                         content: 'editSupplier.html'
+                    });
+                });
+            }else if(obj.event === 'addProduct'){
+                layui.use('layer',function () {
+                    layer.open({
+                        type: 2,
+                        title: '选择商品',
+                        shadeClose: true,
+                        shade: 0.8,
+                        area: ['250px', '250px'],
+                        content: 'choiceProduct.html'
                     });
                 });
             }

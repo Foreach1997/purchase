@@ -20,10 +20,14 @@ import com.pu.purchase.util.SendEmail;
 import org.hibernate.validator.constraints.pl.REGON;
 import com.pu.purchase.util.RepResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -74,7 +78,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     }
 
     @Override
-    public Object updateSupplierScore(String purchaseNo){
+    public Object updateSupplierScore(String purchaseNo,Long supplierId){
         List<PurchaseDetail>  purchaseDetails = purchaseDetailMapper.selectList(new QueryWrapper<PurchaseDetail>().lambda().eq(PurchaseDetail::getPurchaseNo,purchaseNo));
          //[0,25] = -0.5 ,[26,50] -0.25 ..... [50,75] = +0.5 ,[75,100] +0.25
          for (PurchaseDetail purchaseDetail : purchaseDetails) {
@@ -86,7 +90,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
              score = score.add(rateScore);
          DeliverForm  deliverForms =  deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().lambda()
                     .eq(DeliverForm::getPurchaseNo,purchaseNo)
-                    .eq(DeliverForm::getSupplierId,purchaseDetail.getSupplierId()));
+                    .eq(DeliverForm::getSupplierId,supplierId));
          //单价分数占 30/100
          BigDecimal priceRate = purchaseDetail.getPrice().subtract(deliverForms.getPrice())
                  .divide(purchaseDetail.getPrice(),2,RoundingMode.HALF_UP);

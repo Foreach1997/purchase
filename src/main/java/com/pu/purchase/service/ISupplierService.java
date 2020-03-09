@@ -29,7 +29,7 @@ public interface ISupplierService extends IService<Supplier> {
     /**
      * 更新供应商评分
      */
-    Object updateSupplierScore(String purchaseNo);
+    Object updateSupplierScore(String purchaseNo,Long supplierId);
     /**
      * 询价供应商
      */
