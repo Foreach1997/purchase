@@ -42,6 +42,11 @@
 
 </div>
 
+<!-- 分配商品的弹出层开始 -->
+<div id="selectRoleAuthView" style="display: none;">
+    <table class="layui-hide" id="authTable" lay-filter="authTable"></table>
+</div>
+
 <!-- 数据表格结束 -->
 <script type="text/javascript" src="../layui/layui.js"></script>
 <script type="text/javascript" src="../layui_ext/dist/dtree.js"></script>
@@ -81,7 +86,7 @@
                 ,{field:'bankName', width:tableWidth*0.15, title: '开户行'}
                 ,{field:'accountNumber', width:tableWidth*0.15, title: '开户行'}
                 ,{field:'score', width:tableWidth*0.15, title: '积分'}
-                ,{field:'id', width:tableWidth*0.15, title: '操作',toolbar: '#barDemo'}
+                ,{field:'id', width:tableWidth*0.20, title: '操作',toolbar: '#barDemo'}
             ]]
             ,page: true
         });
@@ -118,18 +123,62 @@
                     });
                 });
             }else if(obj.event === 'addProduct'){
-                layui.use('layer',function () {
-                    layer.open({
-                        type: 2,
-                        title: '选择商品',
-                        shadeClose: true,
-                        shade: 0.8,
-                        area: ['250px', '250px'],
-                        content: 'choiceProduct.html'
-                    });
-                });
+                // layui.use('layer',function () {
+                //     layer.open({
+                //         type: 2,
+                //         title: '选择商品',
+                //         shadeClose: true,
+                //         shade: 0.8,
+                //         area: ['250px', '250px'],
+                //         content: 'choiceProduct.html'
+                //     });
+                // });
+                selectRoleAuth(data);
             }
         });
+        //打开分配权限的弹出层
+        function selectRoleAuth(data){
+            mainIndex=layer.open({
+                type:1,
+                title:'分配【'+data.supplier+'】的商品',
+                content:$("#selectRoleAuthView"),
+                area:['800px','400px'],
+                skin:'layui-layer-molv',
+                maxmin:true,
+                btn: ['确认分配'],
+                yes:function(index, layero){
+                    var checkStatus = table.checkStatus('authTable'); //authTable 即为基础参数 id 对应的值
+                    var checkData=checkStatus.data;
+                    var params="id="+data.id;
+                    $.each(checkData,function(index,item){
+                        params+="&ids="+item.materialId;
+                    });
+                    $.post(dev+"supplier/insertSupplierScore",params,function(obj){
+                        layer.msg(obj.msg);
+                        layer.close(index);
+                    })
+                    return false;
+                },
+                btnAlign: 'c',
+                success:function(layero, index){
+                    initRoleData(data);
+                }
+            });
+        };
+        var roleTableIns;
+        function initRoleData(data){
+            roleTableIns=table.render({
+                elem: '#authTable'
+                ,url:dev+'supplier/getloadSupplier?id='+data.id
+                ,cellMinWidth:60
+                ,cols: [ [
+                    {type:'checkbox',align:'center'}
+                    ,{field:'materialId',  title: 'ID',align:'center'}
+                    ,{field:'name',  title: '商品名称',align:'center'}
+                ] ]
+            });
+        }
+
     });
     $('#addSupplier').click(function () {
         flag = false;
@@ -143,7 +192,9 @@
                 content: 'editSupplier.html'
             });
         });
-    })
+    });
+
+
 
     function reload(){
         layui.table.reload('info',{

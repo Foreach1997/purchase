@@ -14,8 +14,7 @@ public class DateUtils {
 
     public static String dateFrString(LocalDateTime date){
         DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime time = LocalDateTime.now();
-        return df.format(time);
+        return df.format(date);
     }
 
     /**

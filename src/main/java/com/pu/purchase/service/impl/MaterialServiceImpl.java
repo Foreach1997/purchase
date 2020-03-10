@@ -38,6 +38,8 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
     private MaterialMapper materialMapper;
     @Resource
     private DeliverFormMapper deliverFormMapper;
+    @Resource
+    private SupplierServiceImpl supplierService;
 
     public Object getMaterialList(){
         List<Material> materials = materialMapper.selectList(new QueryWrapper<Material>().eq("delete_Flag", "0"));
@@ -104,7 +106,9 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
     }
 
     public Object updateDeliver(DeliverFormVo deliverFormVo){
+
         DeliverForm deliverForm = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("no", deliverFormVo.getNo()));
+        supplierService.updateSupplierScore(deliverForm.getPurchaseNo(),deliverForm.getSupplierId());
         deliverForm.setStatus(Integer.parseInt(deliverFormVo.getStatus()));
         if(1!= deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()))){
             return RepResult.repResult(0, "修改失败", null);

@@ -2,22 +2,24 @@ package com.pu.purchase.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.pu.purchase.config.BizException;
-import com.pu.purchase.entity.DeliverForm;
-import com.pu.purchase.entity.PurchaseDetail;
-import com.pu.purchase.entity.Supplier;
-import com.pu.purchase.entity.SupplierScore;
+import com.pu.purchase.entity.*;
 import com.pu.purchase.mapper.MaterialMapper;
+import com.pu.purchase.mapper.SupplierMapper;
 import com.pu.purchase.mapper.SupplierScoreMapper;
 import com.pu.purchase.service.impl.DeliverFormServiceImpl;
 import com.pu.purchase.service.impl.PurchaseDetailServiceImpl;
 import com.pu.purchase.service.impl.SupplierServiceImpl;
 import com.pu.purchase.util.RepResult;
 import com.pu.purchase.vo.ReqStaticfic;
+import com.pu.purchase.vo.SupplierVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
 @RestController
@@ -29,20 +31,21 @@ public class SupplierController  {
     @Autowired
     private SupplierServiceImpl supplierServiceImpl;
 
+    @Resource
+    private MaterialMapper materialMapper;
+
     @Autowired
     private PurchaseDetailServiceImpl purchaseDetailServiceImpl;
 
-    @Autowired
+    @Resource
     BlockingQueue<DeliverForm> sendDeliverFormQueue;
 
     @Autowired
     private DeliverFormServiceImpl deliverFormServiceImpl;
 
-    @Autowired
+    @Resource
     private SupplierScoreMapper supplierScoreMapper;
 
-    @Autowired
-    private MaterialMapper materialMapper;
 
 
     /**
@@ -135,12 +138,48 @@ public class SupplierController  {
      * 插入供应商能提供的商品
      */
     @PostMapping("/insertSupplierScore")
-    public Object insertSupplierScore(@RequestBody SupplierScore supplierScore){
-       if (supplierScoreMapper.selectCount(new QueryWrapper<SupplierScore>().lambda()
-                .eq(SupplierScore::getMaterialId,supplierScore.getMaterialId()))>0){
-           throw  new BizException("当前供应商已经添加过改商品");
-       }
-       return RepResult.repResult(0,"", supplierScoreMapper.insert(supplierScore));
+    public Object insertSupplierScore(SupplierVo supplierVo){
+
+        Long supplierId = supplierVo.getId();
+        int supplier_id = supplierScoreMapper.delete(new QueryWrapper<SupplierScore>().eq("supplier_id", supplierId));
+        Integer[] ids =  supplierVo.getIds();
+        if(ids!=null && ids.length>0) {
+            for (Integer integer : ids) {
+                SupplierScore centre = new SupplierScore();
+                centre.setSupplierId(supplierId);
+                centre.setMaterialId(integer.longValue());
+                supplierScoreMapper.insert(centre);
+            }
+        }
+       return RepResult.repResult(0,"修改成功", null);
+    }
+
+    /**
+     * 返回供应商已有商品
+     * @param id
+     * @return
+     */
+    @RequestMapping("/getloadSupplier")
+    public Object loadSuplier(String id){
+        List<Material> materials = materialMapper.selectList(new QueryWrapper<Material>());
+
+        List<SupplierScore> supplierScore = supplierScoreMapper.selectList(new QueryWrapper<SupplierScore>().eq("supplier_id", id));
+        List<Map<String,Object>> list = new ArrayList<>();
+        for (Material r1 : materials) {
+            Boolean LAY_CHECKED=false;
+            for (SupplierScore r2 : supplierScore) {
+                if(r1.getId().equals(r2.getMaterialId())) {
+                    LAY_CHECKED=true;
+                    break;
+                }
+            }
+            Map<String,Object> map=new HashMap<>();
+            map.put("materialId", r1.getId());
+            map.put("name", r1.getName());
+            map.put("LAY_CHECKED", LAY_CHECKED);
+            list.add(map);
+        }
+        return RepResult.repResult(0, "查询成功", list);
     }
 
     /**
