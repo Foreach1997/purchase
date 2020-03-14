@@ -70,7 +70,7 @@ public class DeliverController {
 
         DeliverForm deliverForm1 = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("no", deliverFormVo.getNo()));
         //deliverForm.setStatus(4);
-        deliverForm.setDeliverDate(LocalDateTime.now());
+        deliverForm.setDeliverDate(DateUtils.getLocalDateTime(deliverFormVo.getTheoryTime()));
         deliverForm.setUpdatePerson(supplier.getSupplier());
         deliverForm.setUpdateDate(LocalDateTime.now());
         deliverForm.setPurchaseNo(deliverFormVo.getPurchaseNo());
@@ -78,8 +78,6 @@ public class DeliverController {
         deliverForm.setNo(deliverFormVo.getNo());
         deliverForm.setPrice(new BigDecimal(deliverFormVo.getPrice()));
         deliverForm.setNum(Integer.parseInt(deliverFormVo.getNum()));
-        deliverForm.setTheoryTime(DateUtils.getLocalDateTime(deliverFormVo.getTheoryTime()));
-        deliverForm.setDeliverDate(LocalDateTime.now());
         if(null==deliverForm1.getNum()){
             modelAndView.addObject("msg","您已提交过请勿重复提交");
         }else if(Integer.parseInt(deliverFormVo.getNum())>Integer.parseInt(deliverFormVo.getTheoryNum())){
