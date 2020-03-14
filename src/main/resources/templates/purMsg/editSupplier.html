@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="../layui/css/layui.css" media="all" />
     <script src="../config/config.js"></script>
     <script type="text/javascript" src="../layui/layui.js"></script>
-    <script type="text/javascript" src="../layui/layui.all.js" ></script>
     <script type="text/javascript" src="../js/jquery-3.4.1.js" ></script>
     <link rel="stylesheet" href="../layui_ext/dtree/dtree.css" media="all" />
     <link rel="stylesheet" href="../layui_ext/dtree/font/dtreefont.css" media="all" />
@@ -71,7 +70,7 @@
     <input type="hidden" name="id"  placeholder="请输入" autocomplete="off" class="layui-input">
     <div class="layui-form-item">
         <div class="layui-input-block">
-            <button type="button"  lay-submit="" lay-filter="demo1" class="layui-btn layui-btn-normal" id="LAY-component-form-getval">确定</button>
+            <button type="submit"  lay-submit="" lay-filter="demo1" class="layui-btn layui-btn-normal" id="LAY-component-form-getval">确定</button>
         </div>
     </div>
 </form>
@@ -98,6 +97,7 @@
             );
         }
         form.on('submit(demo1)', function(){
+            debugger;
             var url;
             if (parent.flag){
                 url =  dev+"supplier/updateSupplier";

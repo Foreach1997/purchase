@@ -9,15 +9,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pu.purchase.config.BizException;
 import com.pu.purchase.dto.PurchaseFormDto;
 import com.pu.purchase.entity.*;
-import com.pu.purchase.mapper.PurchaseDetailMapper;
-import com.pu.purchase.mapper.PurchaseFormMapper;
-import com.pu.purchase.mapper.SupplierMapper;
-import com.pu.purchase.mapper.SupplierScoreMapper;
+import com.pu.purchase.mapper.*;
 import com.pu.purchase.service.IPurchaseFormService;
 import com.pu.purchase.util.DateUtils;
 import com.pu.purchase.util.RepResult;
+import com.pu.purchase.util.SendEmail;
 import com.pu.purchase.util.WebUtils;
 import com.pu.purchase.vo.PurchaseFormVo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -45,6 +44,7 @@ import java.util.stream.Collectors;
  * @since 2020-03-01
  */
 @Service
+@Slf4j
 public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, PurchaseForm> implements IPurchaseFormService {
 
 
@@ -56,6 +56,8 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
     private SupplierMapper supplierMapper;
     @Resource
     private SupplierScoreMapper supplierScoreMapper;
+    @Resource
+    private DeliverFormMapper deliverFormMapper;
 
 
     public Object queryAllPurchaseForm(PurchaseFormVo purchaseFormVo) {
@@ -110,10 +112,18 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
                 .last("limit 3"));
         for (SupplierScore score : supplierScores) {
             DeliverForm deliver = new DeliverForm();
-            deliver.setSupplierId(score.getId());
+            deliver.setSupplierId(score.getSupplierId());
             deliver.setUpdateDate(LocalDateTime.now());
             deliver.setPurchaseNo(purchaseDetail.getPurchaseNo());
             deliver.setNo("SN"+System.currentTimeMillis());
+            deliverFormMapper.insert(deliver);
+            Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda()
+                    .eq(Supplier::getId,deliver.getSupplierId()));
+            try {
+                SendEmail.send(supplier.getEmail(), "http://localhost:8080/purMsg/inquiryOrder.html?no=" + deliver.getNo());
+            }catch (Exception e){
+                log.info(e.getMessage());
+            }
         }
         return RepResult.repResult(0, "添加成功", null);
     }

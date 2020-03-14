@@ -205,4 +205,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
        return  deliverFormMapper.insert(deliverForm);
     }
 
+    public static void main(String[] args) {
+
+    }
 }

@@ -3,10 +3,14 @@ package com.pu.purchase.task;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.pu.purchase.entity.DeliverForm;
 import com.pu.purchase.entity.PurchaseDetail;
+import com.pu.purchase.entity.Supplier;
 import com.pu.purchase.entity.SupplierScore;
 import com.pu.purchase.mapper.DeliverFormMapper;
 import com.pu.purchase.mapper.PurchaseDetailMapper;
+import com.pu.purchase.mapper.SupplierMapper;
 import com.pu.purchase.mapper.SupplierScoreMapper;
+import com.pu.purchase.util.SendEmail;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -19,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class Task {
 
     @Autowired
@@ -30,7 +35,10 @@ public class Task {
     @Autowired
     private PurchaseDetailMapper purchaseDetailMapper;
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Autowired
+    private SupplierMapper supplierMapper;
+
+   // @Scheduled(cron = "0/10 * * * ? *")
     public void updateSendPrice(){
 
        List<DeliverForm> deliverForm = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().lambda()
@@ -43,7 +51,7 @@ public class Task {
             PurchaseDetail purchaseDetail =  purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().lambda()
                     .eq(PurchaseDetail::getPurchaseNo,s));
             Integer sum = 0;
-            List<Long> supplierIds = new ArrayList<>();
+            List<DeliverForm> deliverForms = new ArrayList<>();
             int limit = 0;
             for (DeliverForm form : listMap.get(s)) {
                 if (form.getTheoryTime().compareTo(purchaseDetail.getArriveTime()) > 0 || form.getTheoryNum() == 0){
@@ -69,17 +77,25 @@ public class Task {
                             .eq(DeliverForm::getPurchaseNo,form.getPurchaseNo())
                             .eq(DeliverForm::getSupplierId,form.getSupplierId()));
                     //发送发货单邮件
+                    Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda().eq(Supplier::getId,form.getSupplierId()));
+                    try {
+                        SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no" + form.getNo());
+                    }catch (Exception e){
+                        log.info(e.getMessage());
+                    }
                     sum = purchaseDetail.getPurchaseQuality();
                     break;
                 }
+
+                sum = sum + form.getTheoryNum();
                 //判断多个供应商是否完全符合采购数量
                 if (sum.equals(purchaseDetail.getPurchaseQuality())){
-                    supplierIds.add(form.getSupplierId());
+                    deliverForms.add(form);
                     DeliverForm deliverForm1 = new DeliverForm();
                     deliverForm1.setStatus(-1);
                     deliverFormMapper.update(deliverForm1,new QueryWrapper<DeliverForm>().lambda()
                             .eq(DeliverForm::getPurchaseNo,form.getPurchaseNo())
-                            .notIn(DeliverForm::getSupplierId,supplierIds));
+                            .notIn(DeliverForm::getSupplierId,deliverForms.stream().map(DeliverForm::getSupplierId).collect(Collectors.toList())));
                     DeliverForm currentDeliver = new DeliverForm();
                     currentDeliver.setStatus(2);
                     deliverFormMapper.update(currentDeliver,new QueryWrapper<DeliverForm>().lambda()
@@ -87,25 +103,40 @@ public class Task {
                             .in(DeliverForm::getSupplierId,form.getSupplierId()));
                     //发送发货单邮件
                     sum = purchaseDetail.getPurchaseQuality();
+                    for (DeliverForm deliverForm2 : deliverForms) {
+                        Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda()
+                                .eq(Supplier::getId,deliverForm2.getSupplierId()));
+                        try {
+                            SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no" + deliverForm2.getNo());
+                        }catch (Exception e){
+                            log.info(e.getMessage());
+                        }
+                    }
                     break;
                 }
-                supplierIds.add(form.getSupplierId());
-                sum = sum + form.getTheoryNum();
+                deliverForms.add(form);
             }
             //选择新的供应商
             if (limit != 0 && !sum.equals(purchaseDetail.getPurchaseQuality())){
                List<SupplierScore> supplierScores = supplierScoreMapper.selectList(new QueryWrapper<SupplierScore>().lambda()
                         .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo())
-                        .notIn(SupplierScore::getSupplierId,supplierIds)
+                        .notIn(SupplierScore::getSupplierId,deliverForms.stream().map(DeliverForm::getSupplierId).collect(Collectors.toList()))
                         .orderByDesc(SupplierScore::getSupplierScore)
                         .last("limit "+limit));
                 for (SupplierScore supplierScore : supplierScores) {
                     DeliverForm deliver = new DeliverForm();
-                    deliver.setSupplierId(supplierScore.getId());
+                    deliver.setSupplierId(supplierScore.getSupplierId());
                     deliver.setPurchaseNo(purchaseDetail.getPurchaseNo());
                     deliver.setNo("SN"+System.currentTimeMillis());
                     deliverFormMapper.insert(deliver);
                     //发送询价单邮件
+                    Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda()
+                            .eq(Supplier::getId,deliver.getSupplierId()));
+                    try {
+                        SendEmail.send(supplier.getEmail(), "http://localhost:8080/purMsg/inquiryOrder.html?no=" + deliver.getNo());
+                    }catch (Exception e){
+                        log.info(e.getMessage());
+                    }
                 }
             }
 

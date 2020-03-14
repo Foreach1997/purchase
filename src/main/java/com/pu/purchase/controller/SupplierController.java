@@ -9,6 +9,7 @@ import com.pu.purchase.mapper.SupplierScoreMapper;
 import com.pu.purchase.service.impl.DeliverFormServiceImpl;
 import com.pu.purchase.service.impl.PurchaseDetailServiceImpl;
 import com.pu.purchase.service.impl.SupplierServiceImpl;
+import com.pu.purchase.util.DateUtils;
 import com.pu.purchase.util.RepResult;
 import com.pu.purchase.vo.ReqStaticfic;
 import com.pu.purchase.vo.SupplierVo;
@@ -16,10 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 @RestController
@@ -125,8 +125,12 @@ public class SupplierController  {
     /**
      * 更新deliver_form
      */
-    @PostMapping("/updateDeliverForm")
-    public Object updateDeliverForm(@RequestBody DeliverForm deliverForm){
+    @GetMapping("/updateDeliverForm")
+    public Object updateDeliverForm(String no,Integer theoryNum,Date theoryTime){
+        DeliverForm deliverForm = new DeliverForm();
+        deliverForm.setTheoryTime(DateUtils.getLocalDateTime(theoryTime));
+        deliverForm.setTheoryNum(theoryNum);
+        deliverForm.setNo(no);
         deliverForm.setStatus(1);
       Boolean flag =  deliverFormServiceImpl.update(deliverForm,new QueryWrapper<DeliverForm>().lambda()
                 .eq(DeliverForm::getNo,deliverForm.getNo())

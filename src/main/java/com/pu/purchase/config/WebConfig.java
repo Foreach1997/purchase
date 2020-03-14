@@ -7,13 +7,12 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.pu.purchase.entity.DeliverForm;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -52,4 +51,14 @@ public class WebConfig  {
         return  jackson2HttpMessageConverter;
     }
 
+    @Bean
+    public Converter<String, LocalDateTime> localDateTimeConverter() {
+        return new Converter<String, LocalDateTime>() {
+            @Override
+            public LocalDateTime convert(String s) {
+                return LocalDateTime.parse( s, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            }
+
+        };
+    }
 }

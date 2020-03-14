@@ -14,7 +14,6 @@
     <link rel="stylesheet" href="../layui/css/layui.css" media="all" />
     <script src="../config/config.js"></script>
     <script type="text/javascript" src="../layui/layui.js"></script>
-    <script type="text/javascript" src="../layui/layui.all.js" ></script>
     <script type="text/javascript" src="../js/jquery-3.4.1.js" ></script>
     <link rel="stylesheet" href="../layui_ext/dtree/dtree.css" media="all" />
     <link rel="stylesheet" href="../layui_ext/dtree/font/dtreefont.css" media="all" />
@@ -29,7 +28,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label">预计到货时间</label>
         <div class="layui-input-inline">
-            <input type="text" name="theoryTime" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+            <input type="text" name="theoryTime" id="theoryTime" lay-verify="required" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -48,17 +47,25 @@
 </body>
 </html>
 <script>
-
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        laydate.render({
+            elem: '#theoryTime'
+            ,calendar: true
+            ,showBottom: false
+        });
+    });
     layui.use(['form', 'layedit', 'laydate'], function() {
         var form = layui.form
+        var no =  getUrlCode("no");
         form.on('submit(demo1)', function(){
             var data = form.val('example');
+            data.no = no;
             $.ajax({
-                type: "POST",
+                type: "GET",
                 url: dev+"supplier/updateDeliverForm",
                 async:false,
-                data: JSON.stringify(data),
-                contentType:'application/json',
+                data: {"theoryTime":new Date(data.theoryTime),"theoryNum":data.theoryNum,"no":data.no},
                 success: function(res){
                     layer.msg(res.msg);
                 }
