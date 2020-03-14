@@ -82,7 +82,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         List<PurchaseDetail>  purchaseDetails = purchaseDetailMapper.selectList(new QueryWrapper<PurchaseDetail>().lambda().eq(PurchaseDetail::getPurchaseNo,purchaseNo));
          //[0,25] = -0.5 ,[26,50] -0.25 ..... [50,75] = +0.5 ,[75,100] +0.25
          for (PurchaseDetail purchaseDetail : purchaseDetails) {
-             BigDecimal score = new BigDecimal(100);
+             //BigDecimal score = new BigDecimal(100);
+             BigDecimal score = BigDecimal.ZERO;
              //合格率分数占40/100
              DeliverForm  deliverForms =  deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().lambda()
                      .eq(DeliverForm::getPurchaseNo,purchaseNo)
@@ -92,7 +93,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                    .multiply(new BigDecimal(40));
              score = score.add(rateScore);
          //单价分数占 30/100
-         BigDecimal priceRate = purchaseDetail.getPrice().subtract(deliverForms.getPrice())
+         BigDecimal priceRate = deliverForms.getPrice()
                  .divide(purchaseDetail.getPrice(),2,RoundingMode.HALF_UP);
          BigDecimal priceScore = BigDecimal.ZERO;
          if (priceRate.compareTo(BigDecimal.ZERO) <= 0){
@@ -102,12 +103,12 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
          }
              score = score.add(priceScore);
           //从发送采购订单到到货时间占 10/100
-         if (Period.between(deliverForms.getDeliverDate().toLocalDate(),deliverForms.getTheoryTime().toLocalDate()).getDays()>0){
+         if (Period.between(deliverForms.getDeliverDate().toLocalDate(),purchaseDetail.getArriveTime().toLocalDate()).getDays()>0){
              score = score.add(new BigDecimal(10));
          };
          //按照采购订单规定数量交货占 20/100
          BigDecimal timeScore =   new BigDecimal(deliverForms.getNum())
-                     .divide(new BigDecimal(deliverForms.getTheoryNum()),2,RoundingMode.HALF_UP)
+                     .divide(new BigDecimal(purchaseDetail.getPurchaseQuality()),2,RoundingMode.HALF_UP)
                      .multiply(new BigDecimal(20));
          score = score.add(timeScore);
         SupplierScore supplierScore =  supplierScoreMapper.selectOne(new QueryWrapper<SupplierScore>().lambda()

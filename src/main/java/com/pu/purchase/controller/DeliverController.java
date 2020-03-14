@@ -69,7 +69,7 @@ public class DeliverController {
         Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", deliverFormVo.getSupplierId()));
 
         DeliverForm deliverForm1 = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("no", deliverFormVo.getNo()));
-        deliverForm.setStatus(4);
+        //deliverForm.setStatus(4);
         deliverForm.setDeliverDate(LocalDateTime.now());
         deliverForm.setUpdatePerson(supplier.getSupplier());
         deliverForm.setUpdateDate(LocalDateTime.now());

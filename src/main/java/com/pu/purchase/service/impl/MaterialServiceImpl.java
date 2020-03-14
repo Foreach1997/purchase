@@ -20,6 +20,7 @@ import com.pu.purchase.vo.DeliverFormVo;
 import com.pu.purchase.vo.MaterialVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -115,10 +116,11 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         return RepResult.repResult(0, "成功", collect,materialPage.getTotal());
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
     public Object updateDeliver(DeliverFormVo deliverFormVo){
 
         DeliverForm deliverForm = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("no", deliverFormVo.getNo()));
-        supplierService.updateSupplierScore(deliverForm.getPurchaseNo(),deliverForm.getSupplierId());
         deliverForm.setStatus(Integer.parseInt(deliverFormVo.getStatus()));
 
         if("4".equals(deliverFormVo.getStatus())){
@@ -137,6 +139,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         if(1!= deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()))){
             return RepResult.repResult(0, "修改失败", null);
         }
+        supplierService.updateSupplierScore(deliverForm.getPurchaseNo(),deliverForm.getSupplierId());
         return RepResult.repResult(0, "成功", null);
     }
 
