@@ -53,12 +53,12 @@ public class Task {
             List<DeliverForm> deliverForms = new ArrayList<>();
             int limit = 0;
             for (DeliverForm form : listMap.get(s)) {
-                if (form.getTheoryTime().compareTo(purchaseDetail.getArriveTime()) > 0 || form.getTheoryNum() == 0){
+                if (form.getTheoryTime().compareTo(purchaseDetail.getArriveTime()) < 0 || form.getTheoryNum() == 0){
                     DeliverForm deliverForm1 = new DeliverForm();
                     deliverForm1.setStatus(-1);
                     deliverFormMapper.update(deliverForm1,new QueryWrapper<DeliverForm>().lambda()
                             .eq(DeliverForm::getSupplierId,form.getSupplierId())
-                            .eq(DeliverForm::getNo,s));
+                            .eq(DeliverForm::getNo,form.getNo()));
                     limit = limit + 1;
                     //set为零是为了可以接下来选择其它供应商
                     form.setTheoryNum(0);
@@ -68,7 +68,7 @@ public class Task {
                     DeliverForm deliverForm1 = new DeliverForm();
                     deliverForm1.setStatus(-1);
                     deliverFormMapper.update(deliverForm1,new QueryWrapper<DeliverForm>().lambda()
-                            .eq(DeliverForm::getPurchaseNo,form.getPurchaseNo())
+                            .eq(DeliverForm::getNo,form.getNo())
                             .ne(DeliverForm::getSupplierId,form.getSupplierId()));
                     DeliverForm currentDeliver = new DeliverForm();
                     currentDeliver.setStatus(2);
