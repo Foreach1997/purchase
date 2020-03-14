@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-08
+ * @since 2020-03-14
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -39,7 +39,7 @@ public class PurchaseForm implements Serializable {
     private Integer purchaseType;
 
     /**
-     * 状态：-1已作废0待确认1已确认2已完成
+     * 状态：-1已作废0待确认1已确认2已完成3已退款
      */
     private Integer status;
 

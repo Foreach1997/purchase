@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>采购系统</title>
-    <link rel="stylesheet" href="./layui/css/layui.css">
-    <script src="./layui/layui.js"></script>
-    <script src="./js/jquery-3.4.1.js"></script>
-    <script src="./config/config.js"></script>
+    <link rel="stylesheet" href="../layui/css/layui.css">
+    <script src="../layui/layui.js"></script>
+    <script src="../js/jquery-3.4.1.js"></script>
+    <script src="../config/config.js"></script>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -28,11 +28,11 @@
         <div class="layui-side-scroll">
             <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
             <ul class="layui-nav layui-nav-tree"  lay-filter="test">
-                <li class="layui-nav-item"><a href="./purMsg/purManager.html" target="contentFrame">采购计划</a></li>
-                <li class="layui-nav-item"><a href="./purMsg/Supplier.html" target="contentFrame">供应商管理</a></li>
-                <li class="layui-nav-item"><a href="./MateMsg/MaterialManager.html" target="contentFrame">商品管理</a></li>
-                <li class="layui-nav-item"><a href="./DeilMag/DeliverList.html" target="contentFrame">发货单管理</a></li>
-                <li class="layui-nav-item"><a href="./userMsg/userMannage.html" target="contentFrame">人员管理</a></li>
+                <li class="layui-nav-item"><a href="../purMsg/purManager.html" target="contentFrame">采购计划</a></li>
+                <li class="layui-nav-item"><a href="../purMsg/Supplier.html" target="contentFrame">供应商管理</a></li>
+                <li class="layui-nav-item"><a href="../MateMsg/MaterialManager.html" target="contentFrame">商品管理</a></li>
+                <li class="layui-nav-item"><a href="../DeilMag/DeliverList.html" target="contentFrame">发货单管理</a></li>
+                <li class="layui-nav-item"><a href="../userMsg/userMannage.html" target="contentFrame">人员管理</a></li>
             </ul>
         </div>
     </div>
@@ -93,7 +93,7 @@
                     // $.cookie('userName',res.data.userName);
                     sessionStorage.removeItem("userName")
                     sessionStorage.removeItem("id");
-                    window.location.href="index.html"
+                    window.location.href="../index.html"
                 }else {
                     layer.msg(res.msg)
                 }

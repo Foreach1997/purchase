@@ -61,6 +61,16 @@ public class DeliverFormVo  implements Serializable {
      */
     private String theoryNum;
 
+    /**
+     * 合格数量
+     */
+    private Integer qualifiedQuality;
+
+    /**
+     * 已入库数量
+     */
+    private Integer storageQuality;
+
 
 
 

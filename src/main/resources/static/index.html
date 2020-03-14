@@ -9,40 +9,30 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="format-detection" content="telephone=no">
-    <link rel="icon" href="../favicon.ico">
-    <link rel="stylesheet" href="../layui/css/layui.css" media="all" />
-    <link rel="stylesheet" href="../css/publics.css" media="all" />
+    <link rel="icon" href="./favicon.ico">
+    <link rel="stylesheet" href="layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="css/publics.css" media="all" />
 </head>
-<style>
-    .box{
-        font-family:"华文细黑";
-        color:#63c3ea;
-        font-size:30px;
-        margin-left:40px;
-    }
-</style>
 <body class="loginBody">
 <form class="layui-form" method="post" id="loginFrm" action="/login/login">
-    <div class="login_face"><img src="../images/asd.jpg" class="userAvatar"></div>
-    <div class="box">采购系统</div>
-    <br>
+    <div class="login_face"><img src="/images/asd.jpg" class="userAvatar"></div>
     <div class="layui-form-item input-item">
-        <label >邮箱</label>
+<!--        <label for="email">邮箱</label>-->
         <input type="text" placeholder="请输入邮箱" autocomplete="off" name="email" class="layui-input" lay-verify="required">
     </div>
     <div class="layui-form-item input-item">
-        <label>密码</label>
+<!--        <label for="password">密码</label>-->
         <input type="password" placeholder="请输入密码" autocomplete="off" name="password" class="layui-input" lay-verify="required">
     </div>
     <div class="layui-form-item">
-        <button class="layui-btn layui-block" style="margin-left:-15px;" lay-filter="login" lay-submit >登录</button>
+        <button class="layui-btn layui-block" lay-filter="login" lay-submit >登录</button>
     </div>
     <div class="layui-form-item layui-row" style="color: red;text-align: center;" th:text="${error}">
 
     </div>
 </form>
-<script type="text/javascript" src="../layui/layui.js"></script>
-<script type="text/javascript" src="../js/caches.js"></script>
+<script type="text/javascript" src="layui/layui.js"></script>
+<script type="text/javascript" src="js/caches.js"></script>
 <script type="text/javascript">
         layui.use('form',"jquery",'layer',function () {
             var  layer = layui.layer;
@@ -57,6 +47,38 @@
                 },1000);
                 return false;
             })
+
+            // $("#login").click(function () {
+            //         var email = $("#email").val();
+            //         var password=$("#password").val();
+            //         if(!email){
+            //             layer.msg("请输入邮箱账号")
+            //         }else if(!password){
+            //             layer.msg("请输入密码")
+            //         }else {
+            //             $.ajax({
+            //                 type: "GET",
+            //                 url: dev+"user/login",
+            //                 async:false,
+            //                 data: {
+            //                     email:email,
+            //                     password:password,
+            //                 },
+            //                 success: function(res){
+            //                     if (res.code==0){
+            //                         layer.msg(res.msg)
+            //                         console.log(res)
+            //                         sessionStorage.setItem("userName",res.data.userName)
+            //                         sessionStorage.setItem("id",res.data.id);
+            //                         window.location.href="main.html"
+            //                     }else {
+            //                         layer.msg(res.msg)
+            //                     }
+            //                 }
+            //             })
+            //         }
+            //     }
+            // );
 
             //表单输入效果
             $(".loginBody .input-item").click(function(e){

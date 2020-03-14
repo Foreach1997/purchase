@@ -9,8 +9,10 @@ import com.pu.purchase.config.BizException;
 import com.pu.purchase.dto.DeliverFormDto;
 import com.pu.purchase.entity.DeliverForm;
 import com.pu.purchase.entity.Material;
+import com.pu.purchase.entity.PurchaseDetail;
 import com.pu.purchase.mapper.DeliverFormMapper;
 import com.pu.purchase.mapper.MaterialMapper;
+import com.pu.purchase.mapper.PurchaseDetailMapper;
 import com.pu.purchase.service.IMaterialService;
 import com.pu.purchase.util.DateUtils;
 import com.pu.purchase.util.RepResult;
@@ -20,6 +22,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +43,8 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
     private DeliverFormMapper deliverFormMapper;
     @Resource
     private SupplierServiceImpl supplierService;
+    @Resource
+    private PurchaseDetailMapper purchaseDetailMapper;
 
     public Object getMaterialList(){
         List<Material> materials = materialMapper.selectList(new QueryWrapper<Material>().eq("delete_Flag", "0"));
@@ -93,15 +98,20 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
                 .eq(StringUtils.isNotBlank(deliverFormVo.getPurchaseNo()),DeliverForm::getPurchaseNo,deliverFormVo.getPurchaseNo())
                 .eq(StringUtils.isNotBlank(deliverFormVo.getSupplierId()),DeliverForm::getSupplierId,deliverFormVo.getSupplierId());
         Page<DeliverForm> materialPage = deliverFormMapper.selectPage(new Page<>(deliverFormVo.getPage(), deliverFormVo.getLimit()), queryWrapper);
-        List<DeliverFormDto> collect = materialPage.getRecords().stream().map(material ->{
+        List<DeliverFormDto> collect = new ArrayList<>();
+        for (DeliverForm material : materialPage.getRecords()) {
             DeliverFormDto deliverFormDto = new DeliverFormDto();
             BeanUtils.copyProperties(material,deliverFormDto);
             deliverFormDto.setCreateDate(DateUtils.dateFrString(material.getCreateDate()));
-            deliverFormDto.setDeliverDate(DateUtils.dateFrString(material.getDeliverDate()));
-            deliverFormDto.setTheoryTime(DateUtils.dateFrString(material.getTheoryTime()));
+            if(null!=material.getDeliverDate()){
+                deliverFormDto.setDeliverDate(DateUtils.dateFrString(material.getDeliverDate()));
+            }
+            if(null!=material.getTheoryTime()){
+                deliverFormDto.setTheoryTime(DateUtils.dateFrString(material.getTheoryTime()));
+            }
             deliverFormDto.setUpdateDate(DateUtils.dateFrString(material.getUpdateDate()));
-            return deliverFormDto;
-        }).collect(Collectors.toList());
+            collect.add(deliverFormDto);
+        }
         return RepResult.repResult(0, "成功", collect,materialPage.getTotal());
     }
 
@@ -112,6 +122,23 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         deliverForm.setStatus(Integer.parseInt(deliverFormVo.getStatus()));
         if(1!= deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()))){
             return RepResult.repResult(0, "修改失败", null);
+        }
+        if("4".equals(deliverFormVo.getStatus())){
+            PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", deliverForm.getPurchaseNo()));
+            if(purchaseDetail.getPurchaseQuality()<deliverFormVo.getQualifiedQuality() || purchaseDetail.getPurchaseQuality()<deliverFormVo.getStorageQuality()){
+                return RepResult.repResult(0, "请填写正确数量", null);
+            }
+            Integer qualifiedQuality = purchaseDetail.getQualifiedQuality();
+            if(null==qualifiedQuality){
+                qualifiedQuality = 0;
+            }
+            Integer storageQuality = purchaseDetail.getStorageQuality();
+            if(null==storageQuality){
+                storageQuality = 0;
+            }
+            purchaseDetail.setStorageQuality(storageQuality+deliverFormVo.getStorageQuality());
+            purchaseDetail.setQualifiedQuality(qualifiedQuality+deliverFormVo.getQualifiedQuality());
+            purchaseDetailMapper.update(purchaseDetail,new QueryWrapper<PurchaseDetail>().eq("purchase_no", deliverForm.getPurchaseNo()));
         }
         return RepResult.repResult(0, "成功", null);
     }

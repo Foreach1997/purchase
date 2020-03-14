@@ -59,7 +59,39 @@
 <!-- 添加和修改弹出层 -->
 <div style="display: none; padding: 10px" id="addOrUpdateView">
     <form class="layui-form" action="" method="post" id="dataFrm" lay-filter="dataFrm">
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">合格数量</label>
+                <div class="layui-input-inline">
+                    <input type="hidden" name="no">
+                    <input type="text" name="qualifieduality" id="num"
+                           autocomplete="off" placeholder="请输入合格数量" class="layui-input">
+                </div>
+            </div>
+        </div>Q
+        <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">到货数量</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="storageuality" id="nukm1"
+                           autocomplete="off" placeholder="请输入到货数量" class="layui-input">
+                </div>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">请审核</label>
+            <div class="layui-input-block">
+                <input type="radio" name="status" value="4" title="审核通过" checked="">
+                <input type="radio" name="status" value="3" title="审核不通过">
+            </div>
+        </div>
 
+        <div class="layui-form-item">
+            <div class="layui-input-block">
+                <button class="layui-btn" lay-submit="" lay-filter="doSubmit">立即提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+        </div>
     </form>
 </div>
 <!-- 数据表格结束 -->
@@ -151,7 +183,42 @@
                 contractView(data);
             }
         });
-        function  contractView(data){
+
+        var mainIndex;
+        var url;
+        function contractView(data){
+            mainIndex=layer.open({
+                type:1,
+                title:'核对入库',
+                content:$("#addOrUpdateView"),
+                area:['400px','300px'],
+                skin:'layui-layer-molv',
+                maxmin:true,
+                success:function(layero, index){
+                    //清空表单
+                    $("#dataFrm")[0].reset();
+                    //移除下拉列表展开的样式
+                    $("#accordionDeptid").removeClass("layui-show layui-anim layui-anim-upbit");
+                    form.val("dataFrm",data);
+                    url= dev + "mater/updateDeliver";
+                }
+            })
+        };
+
+        //提交事件
+        form.on('submit(doSubmit)',function(data){
+            var params=$("#dataFrm").serialize();
+            $.get(url,params,function(obj){
+                // layer.msg(obj.msg);
+                //关闭弹出层
+                layer.close(mainIndex);
+                //刷新数据表格
+                tableIns.reload();
+            })
+            return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+        });
+
+        function  contractView1(data){
             layer.open({
                 btn: ['通过', '不通过']
                 ,yes: function(index, layero){
@@ -185,6 +252,8 @@
                 }
             });
         };
+
+
         //初始化查询供应商的下拉列表
         $.get(dev+"/plan/supplier",function(obj){
             obj = obj.data;

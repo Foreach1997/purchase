@@ -67,7 +67,7 @@ public class DeliverController {
         ModelAndView modelAndView = new ModelAndView();
         DeliverForm deliverForm = new DeliverForm();
         Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", deliverFormVo.getSupplierId()));
-
+        DeliverForm deliverForm1 = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("no", deliverFormVo.getNo()));
         deliverForm.setStatus(1);
         deliverForm.setDeliverDate(LocalDateTime.now());
         deliverForm.setUpdatePerson(supplier.getSupplier());
@@ -79,6 +79,13 @@ public class DeliverController {
         deliverForm.setNum(Integer.parseInt(deliverFormVo.getNum()));
         deliverForm.setTheoryTime(DateUtils.getLocalDateTime(deliverFormVo.getTheoryTime()));
         deliverForm.setDeliverDate(LocalDateTime.now());
+        if(null==deliverForm1.getNum()){
+            modelAndView.addObject("msg","您已提交过请勿重复提交");
+        }else if(Integer.parseInt(deliverFormVo.getNum())>Integer.parseInt(deliverFormVo.getTheoryNum())){
+            modelAndView.addObject("msg","数量过多请重新填写");
+        }else {
+            modelAndView.addObject("msg","您的发货单已提交请尽快发货");
+        }
         deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()));
 
         modelAndView.setViewName("DeilMag/hello");

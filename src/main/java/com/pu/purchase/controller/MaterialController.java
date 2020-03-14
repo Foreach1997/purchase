@@ -66,7 +66,7 @@ public class MaterialController {
     }
 
     /**
-     * 修改发货单状态
+     * 修改发货单状态（核对入库）
      */
     @GetMapping("/updateDeliver")
     public Object updateDeliver(DeliverFormVo deliverFormVo) {

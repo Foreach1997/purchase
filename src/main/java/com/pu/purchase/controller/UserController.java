@@ -22,14 +22,6 @@ public class UserController {
     private UserServiceImpl userServiceImpl;
 
     /**
-     * 登录
-     */
-    @GetMapping("/login")
-    public Object login(String email, String password, HttpServletRequest request) {
-        return userServiceImpl.login(email, password, request);
-    }
-
-    /**
      * 登出
      */
     @GetMapping("/loginOut")

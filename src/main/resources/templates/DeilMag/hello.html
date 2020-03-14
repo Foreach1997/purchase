@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>关闭页面</title>
@@ -27,7 +27,7 @@
     <div class="layui-row layui-col-space15">
         <div class="layui-col-md12">
             <div class="layui-card">
-                <div class="layui-card-header">您的发货单已提交请尽快发货</div>
+                <div class="layui-card-header">th:field="*{msg}"</div>
             </div>
         </div>
     </div>
