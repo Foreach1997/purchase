@@ -120,25 +120,22 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         DeliverForm deliverForm = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("no", deliverFormVo.getNo()));
         supplierService.updateSupplierScore(deliverForm.getPurchaseNo(),deliverForm.getSupplierId());
         deliverForm.setStatus(Integer.parseInt(deliverFormVo.getStatus()));
-        if(1!= deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()))){
-            return RepResult.repResult(0, "修改失败", null);
-        }
+
         if("4".equals(deliverFormVo.getStatus())){
             PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", deliverForm.getPurchaseNo()));
             if(purchaseDetail.getPurchaseQuality()<deliverFormVo.getQualifiedQuality() || purchaseDetail.getPurchaseQuality()<deliverFormVo.getStorageQuality()){
                 return RepResult.repResult(0, "请填写正确数量", null);
-            }
-            Integer qualifiedQuality = purchaseDetail.getQualifiedQuality();
-            if(null==qualifiedQuality){
-                qualifiedQuality = 0;
             }
             Integer storageQuality = purchaseDetail.getStorageQuality();
             if(null==storageQuality){
                 storageQuality = 0;
             }
             purchaseDetail.setStorageQuality(storageQuality+deliverFormVo.getStorageQuality());
-            purchaseDetail.setQualifiedQuality(qualifiedQuality+deliverFormVo.getQualifiedQuality());
+            deliverForm.setQualifiedQuality(deliverFormVo.getQualifiedQuality());
             purchaseDetailMapper.update(purchaseDetail,new QueryWrapper<PurchaseDetail>().eq("purchase_no", deliverForm.getPurchaseNo()));
+        }
+        if(1!= deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()))){
+            return RepResult.repResult(0, "修改失败", null);
         }
         return RepResult.repResult(0, "成功", null);
     }
