@@ -83,14 +83,14 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
          //[0,25] = -0.5 ,[26,50] -0.25 ..... [50,75] = +0.5 ,[75,100] +0.25
          for (PurchaseDetail purchaseDetail : purchaseDetails) {
              BigDecimal score = new BigDecimal(100);
-         //合格率分数占40/100
-         BigDecimal rateScore =  new BigDecimal(purchaseDetail.getQualifiedQuality())
-                   .divide(new BigDecimal(purchaseDetail.getPurchaseQuality()),2, RoundingMode.HALF_UP)
+             //合格率分数占40/100
+             DeliverForm  deliverForms =  deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().lambda()
+                     .eq(DeliverForm::getPurchaseNo,purchaseNo)
+                     .eq(DeliverForm::getSupplierId,supplierId));
+             BigDecimal rateScore =  new BigDecimal(deliverForms.getQualifiedQuality())
+                   .divide(new BigDecimal(deliverForms.getNum()),2, RoundingMode.HALF_UP)
                    .multiply(new BigDecimal(40));
              score = score.add(rateScore);
-         DeliverForm  deliverForms =  deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().lambda()
-                    .eq(DeliverForm::getPurchaseNo,purchaseNo)
-                    .eq(DeliverForm::getSupplierId,supplierId));
          //单价分数占 30/100
          BigDecimal priceRate = purchaseDetail.getPrice().subtract(deliverForms.getPrice())
                  .divide(purchaseDetail.getPrice(),2,RoundingMode.HALF_UP);

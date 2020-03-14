@@ -74,7 +74,6 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
             PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", purchaseForm.getNo()));
             purchaseFormDto.setProductNo(purchaseDetail.getProductNo());
             purchaseFormDto.setPurchaseQuality(purchaseDetail.getPurchaseQuality());
-            purchaseFormDto.setQualifiedQuality(purchaseDetail.getQualifiedQuality());
             purchaseFormDto.setStorageQuality(purchaseDetail.getStorageQuality());
             purchaseFormDto.setPurchasePrice(purchaseDetail.getPurchasePrice());
             purchaseFormDto.setStatus(purchaseForm.getStatus().toString());
