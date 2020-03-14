@@ -42,8 +42,8 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
     private SupplierServiceImpl supplierService;
 
     public Object sendContract(String no){
-        Contract purchaseNo = contractMapper.selectOne(new QueryWrapper<Contract>().eq("purchase_no", no));
-        if(null!=purchaseNo){
+        List<Contract> contracts = contractMapper.selectList(new QueryWrapper<Contract>().eq("purchase_no", no));
+        if(null!=contracts){
             return RepResult.repResult(0, "您已发送过请勿重复发送", null);
         }
 
