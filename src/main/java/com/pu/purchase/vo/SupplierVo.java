@@ -12,5 +12,5 @@ public class SupplierVo  implements Serializable {
      */
     private Long id;
 
-    private Integer[] ids;
+    private Long[] ids;
 }

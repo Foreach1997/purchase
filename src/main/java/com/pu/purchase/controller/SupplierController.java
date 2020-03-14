@@ -142,9 +142,9 @@ public class SupplierController  {
 
         Long supplierId = supplierVo.getId();
         int supplier_id = supplierScoreMapper.delete(new QueryWrapper<SupplierScore>().eq("supplier_id", supplierId));
-        Integer[] ids =  supplierVo.getIds();
+        Long[] ids =  supplierVo.getIds();
         if(ids!=null && ids.length>0) {
-            for (Integer integer : ids) {
+            for (Long integer : ids) {
                 SupplierScore centre = new SupplierScore();
                 centre.setSupplierId(supplierId);
                 centre.setMaterialId(integer.longValue());
