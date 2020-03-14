@@ -101,7 +101,7 @@ public class DeliverController {
         List<DeliverForm> deliverForms = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().eq("purchase_no", contract.getPurchaseNo()));
         boolean bool = true;
         for (DeliverForm deliverForm : deliverForms) {
-            if(1!=deliverForm.getStatus() && 2!=deliverForm.getStatus()){
+            if(3!=deliverForm.getStatus() && 2!=deliverForm.getStatus()){
                 bool = false;
             }
         }
