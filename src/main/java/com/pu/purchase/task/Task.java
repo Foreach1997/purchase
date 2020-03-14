@@ -38,7 +38,7 @@ public class Task {
     @Autowired
     private SupplierMapper supplierMapper;
 
-    //@Scheduled(cron = "0/10 * * * * ?")
+//    @Scheduled(cron = "0/10 * * * * ?")
     public void updateSendPrice(){
        List<DeliverForm> deliverForm = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().lambda()
                .in(DeliverForm::getStatus,1,0)
