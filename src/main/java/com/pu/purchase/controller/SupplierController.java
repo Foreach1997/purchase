@@ -162,14 +162,18 @@ public class SupplierController  {
     public Object insertSupplierScore(SupplierVo supplierVo){
 
         Long supplierId = supplierVo.getId();
-        int supplier_id = supplierScoreMapper.delete(new QueryWrapper<SupplierScore>().eq("supplier_id", supplierId));
         Long[] ids =  supplierVo.getIds();
+        int supplier_id = supplierScoreMapper.delete(new QueryWrapper<SupplierScore>().eq("supplier_id", supplierId)
+        .notIn("material_id",ids));
         if(ids!=null && ids.length>0) {
             for (Long integer : ids) {
                 SupplierScore centre = new SupplierScore();
                 centre.setSupplierId(supplierId);
                 centre.setMaterialId(integer.longValue());
-                supplierScoreMapper.insert(centre);
+                if (supplierScoreMapper.selectCount(new QueryWrapper<SupplierScore>().eq("supplier_id", supplierId)
+                        .eq("material_id",integer.longValue())) == 0){
+                    supplierScoreMapper.insert(centre);
+                }
             }
         }
        return RepResult.repResult(0,"修改成功", null);

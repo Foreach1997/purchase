@@ -110,7 +110,9 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
             if(null!=material.getTheoryTime()){
                 deliverFormDto.setTheoryTime(DateUtils.dateFrString(material.getTheoryTime()));
             }
-            deliverFormDto.setUpdateDate(DateUtils.dateFrString(material.getUpdateDate()));
+            if(null!=material.getUpdateDate()) {
+                deliverFormDto.setUpdateDate(DateUtils.dateFrString(material.getUpdateDate()));
+            }
             collect.add(deliverFormDto);
         }
         return RepResult.repResult(0, "成功", collect,materialPage.getTotal());
