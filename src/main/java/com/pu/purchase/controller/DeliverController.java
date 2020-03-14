@@ -86,8 +86,8 @@ public class DeliverController {
             modelAndView.addObject("msg","数量过多请重新填写");
         }else {
             modelAndView.addObject("msg","您的发货单已提交请尽快发货");
+            deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()));
         }
-        deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()));
 
         modelAndView.setViewName("DeilMag/hello");
         return modelAndView;
