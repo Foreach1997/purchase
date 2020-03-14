@@ -1,6 +1,8 @@
 package com.pu.purchase.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pu.purchase.config.BizException;
 import com.pu.purchase.entity.*;
 import com.pu.purchase.mapper.MaterialMapper;
@@ -127,6 +129,21 @@ public class SupplierController  {
      */
     @GetMapping("/updateDeliverForm")
     public Object updateDeliverForm(String no,Integer theoryNum,Date theoryTime){
+      DeliverForm deliver =  deliverFormServiceImpl.getOne(new QueryWrapper<DeliverForm>().lambda().eq(DeliverForm::getNo,no));
+      List<DeliverForm> deliverFormList =   deliverFormServiceImpl.list(new QueryWrapper<DeliverForm>().lambda().eq(DeliverForm::getPurchaseNo,deliver.getPurchaseNo()));
+      Integer deliverFormNum = deliverFormList.stream().mapToInt(DeliverForm::getTheoryNum).sum();
+      PurchaseDetail purchaseDetail =  purchaseDetailServiceImpl.getOne(new QueryWrapper<PurchaseDetail>().lambda()
+                .eq(PurchaseDetail::getPurchaseNo,deliver.getPurchaseNo()));
+      int result =  deliverFormNum + theoryNum;
+        if (purchaseDetail.getPurchaseQuality().equals(deliverFormNum)){
+            throw  new BizException("我们采购已完成");
+        }
+        if (theoryNum > purchaseDetail.getPurchaseQuality() ){
+            throw  new BizException("大于我们采购数量");
+        }
+        if (result > purchaseDetail.getPurchaseQuality()){
+            throw  new BizException("大于我们采购数量!我们还需要最多:"+ (purchaseDetail.getPurchaseQuality()-deliverFormNum));
+        }
         DeliverForm deliverForm = new DeliverForm();
         deliverForm.setTheoryTime(DateUtils.getLocalDateTime(theoryTime));
         deliverForm.setTheoryNum(theoryNum);
@@ -135,7 +152,7 @@ public class SupplierController  {
       Boolean flag =  deliverFormServiceImpl.update(deliverForm,new QueryWrapper<DeliverForm>().lambda()
                 .eq(DeliverForm::getNo,deliverForm.getNo())
                 .eq(DeliverForm::getStatus,0));
-      return RepResult.repResult(0,"",flag);
+      return RepResult.repResult(0,"成功",flag);
     }
 
     /**
@@ -192,5 +209,18 @@ public class SupplierController  {
     @GetMapping("/selectSupplierScore")
     public Object selectSupplierScore(){
         return RepResult.repResult(0,"", materialMapper.selectList(new QueryWrapper<>()));
+    }
+
+    /**
+     * 供应商积分
+     */
+    @GetMapping("/getAllSupplierScore")
+    public Object getAllSupplierScore(int size,int current,String materialId){
+        IPage<SupplierScore> iPage = new Page<>();
+        iPage.setSize(size);
+        iPage.setCurrent(current);
+        iPage = supplierScoreMapper.selectPage(iPage,new QueryWrapper<SupplierScore>().lambda()
+        .like(materialId != null,SupplierScore::getMaterialId,materialId));
+        return RepResult.repResult(0,"", iPage.getRecords(),iPage.getTotal());
     }
 }

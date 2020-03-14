@@ -40,11 +40,6 @@ public class PurchaseDetail implements Serializable {
     private Integer purchaseQuality;
 
     /**
-     * 合格数量
-     */
-    private Integer qualifiedQuality;
-
-    /**
      * 已入库数量
      */
     private Integer storageQuality;

@@ -94,5 +94,10 @@ public class DeliverForm implements Serializable {
      */
     private Integer theoryNum;
 
+    /**
+     * 合格数量
+     */
+    private Integer qualifiedQuality;
+
 
 }

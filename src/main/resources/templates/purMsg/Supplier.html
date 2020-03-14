@@ -29,6 +29,12 @@
 </fieldset>
 <div class="layui-form-item" style="margin-left: 600px">
     <div class="layui-inline">
+        <label class="layui-form-label">供应商:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="supplier"  id="supplier"   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-inline">
         <button class="layui-btn layui-btn-normal" id="find">查询</button>
     </div>
     <!--<div class="layui-inline">
@@ -202,6 +208,16 @@
             }
         })}
 
+    $("#find").click(function () {
+        find();
+    })
+
+    function find(){
+        layui.table.reload('info',{
+            where: {
+                supplier:$("#supplier").val()
+            }});
+    }
 
 </script>
 </body>

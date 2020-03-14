@@ -38,12 +38,11 @@ public class Task {
     @Autowired
     private SupplierMapper supplierMapper;
 
-   // @Scheduled(cron = "0/10 * * * ? *")
+    //@Scheduled(cron = "0/10 * * * * ?")
     public void updateSendPrice(){
-
        List<DeliverForm> deliverForm = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().lambda()
                .in(DeliverForm::getStatus,1,0)
-               .le(DeliverForm::getTheoryTime,LocalDateTime.now()));
+               .ge(DeliverForm::getTheoryTime,LocalDateTime.now()));
 
        Map<String,List<DeliverForm>> listMap = deliverForm.stream().collect(Collectors.groupingBy(DeliverForm::getPurchaseNo));
         for (String s : listMap.keySet()) {
@@ -79,7 +78,7 @@ public class Task {
                     //发送发货单邮件
                     Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda().eq(Supplier::getId,form.getSupplierId()));
                     try {
-                        SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no" + form.getNo());
+                        SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no=" + form.getNo());
                     }catch (Exception e){
                         log.info(e.getMessage());
                     }
@@ -88,6 +87,7 @@ public class Task {
                 }
 
                 sum = sum + form.getTheoryNum();
+                //deliverForms.add(form);
                 //判断多个供应商是否完全符合采购数量
                 if (sum.equals(purchaseDetail.getPurchaseQuality())){
                     deliverForms.add(form);
@@ -100,7 +100,7 @@ public class Task {
                     currentDeliver.setStatus(2);
                     deliverFormMapper.update(currentDeliver,new QueryWrapper<DeliverForm>().lambda()
                             .eq(DeliverForm::getPurchaseNo,form.getPurchaseNo())
-                            .in(DeliverForm::getSupplierId,form.getSupplierId()));
+                            .in(DeliverForm::getSupplierId,deliverForms.stream().map(DeliverForm::getSupplierId).collect(Collectors.toList())));
                     //发送发货单邮件
                     sum = purchaseDetail.getPurchaseQuality();
                     for (DeliverForm deliverForm2 : deliverForms) {
@@ -117,7 +117,10 @@ public class Task {
                 deliverForms.add(form);
             }
             //选择新的供应商
-            if (limit != 0 && !sum.equals(purchaseDetail.getPurchaseQuality())){
+            if (!sum.equals(purchaseDetail.getPurchaseQuality())){
+               if (limit == 0){
+                    limit = 1;
+               }
                List<SupplierScore> supplierScores = supplierScoreMapper.selectList(new QueryWrapper<SupplierScore>().lambda()
                         .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo())
                         .notIn(SupplierScore::getSupplierId,deliverForms.stream().map(DeliverForm::getSupplierId).collect(Collectors.toList()))
@@ -143,8 +146,10 @@ public class Task {
         }
     }
 
-
-
+    //@Scheduled(cron = "0/10 * * * * ?")
+//    public void sendTo(){
+//        deliverFormMapper.update();
+//    }
 
 
 

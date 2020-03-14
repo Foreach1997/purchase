@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -103,6 +104,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         purchaseDetail.setPurchaseQuality(record.getPurchaseQuality());
         purchaseDetail.setPurchaseNo(time.toString());
         purchaseDetail.setArriveTime(DateUtils.getLocalDateTime(record.getArriveTime()));
+        purchaseDetail.setPrice(record.getPurchasePrice().divide(new BigDecimal(record.getPurchaseQuality()),2, RoundingMode.HALF_UP));
         if (1 != purchaseDetailMapper.insert(purchaseDetail)) {
             throw new BizException("添加采购单详情失败");
         }
