@@ -40,6 +40,8 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
     private DeliverFormMapper deliverFormMapper;
     @Resource
     private SupplierServiceImpl supplierService;
+    @Resource
+    private PurchaseFormMapper purchaseFormMapper;
 
     public Object sendContract(String no){
         List<Contract> contracts = contractMapper.selectList(new QueryWrapper<Contract>().eq("purchase_no", no));
