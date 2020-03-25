@@ -52,6 +52,28 @@ public class Task {
             Integer sum = 0;
             List<DeliverForm> deliverForms = new ArrayList<>();
             int limit = 0;
+            List<DeliverForm> deliverForms1 =  listMap.get(s).stream().filter(d -> purchaseDetail.getPurchaseQuality().equals(d.getTheoryNum())).collect(Collectors.toList());
+            if (deliverForms1 != null && deliverForms1.size()>0){
+                DeliverForm deliver = new DeliverForm();
+                deliver.setStatus(-1);
+                deliverFormMapper.update(deliver,new QueryWrapper<DeliverForm>().lambda()
+                        .eq(DeliverForm::getNo,deliver.getNo())
+                        .ne(DeliverForm::getSupplierId,deliver.getSupplierId()));
+                DeliverForm currentDeliver = new DeliverForm();
+                currentDeliver.setStatus(2);
+                deliverFormMapper.update(currentDeliver,new QueryWrapper<DeliverForm>().lambda()
+                        .eq(DeliverForm::getPurchaseNo,deliver.getPurchaseNo())
+                        .eq(DeliverForm::getSupplierId,deliver.getSupplierId()));
+                //发送发货单邮件
+                Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda().eq(Supplier::getId,deliver.getSupplierId()));
+                try {
+                    SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no=" + deliver.getNo());
+                }catch (Exception e){
+                    log.info(e.getMessage());
+                }
+                sum = purchaseDetail.getPurchaseQuality();
+                return;
+            }
             for (DeliverForm form : listMap.get(s)) {
                 if (form.getTheoryTime().compareTo(purchaseDetail.getArriveTime()) < 0 || form.getTheoryNum() == 0){
                     DeliverForm deliverForm1 = new DeliverForm();
