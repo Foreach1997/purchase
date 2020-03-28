@@ -60,6 +60,7 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         return RepResult.repResult(0, "查询成功", materials1, (long) materials.size());
     }
 
+
     public Object loadAllPurchaseForm(MaterialVo materialVo){
         LambdaQueryWrapper<Material> queryWrapper = new LambdaQueryWrapper<Material>()
                 .eq(StringUtils.isNotBlank(materialVo.getName()),Material::getName,materialVo.getName())
