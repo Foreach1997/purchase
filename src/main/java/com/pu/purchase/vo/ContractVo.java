@@ -19,6 +19,21 @@ public class ContractVo implements Serializable {
     private String purchaseNo;
 
     /**
+     * 数量
+     */
+    private String num;
+
+    /**
+     * 单价
+     */
+    private String unitPrice;
+
+    /**
+     * 单价
+     */
+    private String price;
+
+    /**
      * 生效开始日期
      */
     private String validateDateBegin;

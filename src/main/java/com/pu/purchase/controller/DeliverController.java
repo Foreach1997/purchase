@@ -1,5 +1,6 @@
 package com.pu.purchase.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.pu.purchase.entity.*;
 import com.pu.purchase.mapper.*;
@@ -112,9 +113,16 @@ public class DeliverController {
         }
         contract.setStatus(3);
         contractMapper.update(contract, new QueryWrapper<Contract>().eq("no", no));
+        DeliverForm deliverForm = deliverFormMapper.selectOne(new LambdaQueryWrapper<DeliverForm>()
+                .eq(DeliverForm::getPurchaseNo, contract.getPurchaseNo())
+                .eq(DeliverForm::getSupplierId,contract.getSupplierId()));
+        String num = deliverForm.getNum().toString();
         ContractVo contractVo = new ContractVo();
         contractVo.setCreatePerson(contract.getCreatePerson());
         contractVo.setNo(contract.getNo());
+        contractVo.setNum(num);
+        contractVo.setUnitPrice(deliverForm.getPrice().toString());
+        contractVo.setPrice(deliverForm.getPrice().multiply(BigDecimal.valueOf(Long.parseLong(num))).toString());
         contractVo.setPurchaseNo(contract.getPurchaseNo());
         contractVo.setValidateDateBegin(DateUtils.dateFrString(contract.getValidateDateBegin()));
         contractVo.setValidateDateEnd(DateUtils.dateFrString(contract.getValidateDateEnd()));

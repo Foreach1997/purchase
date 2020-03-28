@@ -1,6 +1,7 @@
 package com.pu.purchase.controller;
 
 
+import com.pu.purchase.entity.GoodsClassify;
 import com.pu.purchase.service.impl.MaterialServiceImpl;
 import com.pu.purchase.vo.DeliverFormVo;
 import com.pu.purchase.vo.MaterialVo;
@@ -36,6 +37,26 @@ public class MaterialController {
     @GetMapping("/addMaterial")
     public Object addMaterial(MaterialVo materialVo) {
         return materialService.insertSelective(materialVo);
+    }
+
+
+    /**
+     * 加载商品分类列表
+     */
+    @GetMapping("/goodsList")
+    public Object getGoodsList() {
+        return materialService.getSupplierList();
+    }
+
+    /**
+     * 添加商品分类
+     *
+     * @param materialVo
+     * @return
+     */
+    @GetMapping("/addGoodsClass")
+    public Object addGoodsClass(GoodsClassify materialVo) {
+        return materialService.insertGoodsClass(materialVo);
     }
 
     /**

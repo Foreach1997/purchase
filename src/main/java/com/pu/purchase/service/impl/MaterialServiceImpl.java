@@ -7,10 +7,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pu.purchase.config.BizException;
 import com.pu.purchase.dto.DeliverFormDto;
-import com.pu.purchase.entity.DeliverForm;
-import com.pu.purchase.entity.Material;
-import com.pu.purchase.entity.PurchaseDetail;
+import com.pu.purchase.dto.GoodsDto;
+import com.pu.purchase.entity.*;
 import com.pu.purchase.mapper.DeliverFormMapper;
+import com.pu.purchase.mapper.GoodsClassifyMapper;
 import com.pu.purchase.mapper.MaterialMapper;
 import com.pu.purchase.mapper.PurchaseDetailMapper;
 import com.pu.purchase.service.IMaterialService;
@@ -46,10 +46,18 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
     private SupplierServiceImpl supplierService;
     @Resource
     private PurchaseDetailMapper purchaseDetailMapper;
+    @Resource
+    private GoodsClassifyMapper goodsClassifyMapper;
 
     public Object getMaterialList(){
         List<Material> materials = materialMapper.selectList(new QueryWrapper<Material>().eq("delete_Flag", "0"));
-        return RepResult.repResult(0, "查询成功", materials, (long) materials.size());
+        List<Material> materials1 = new ArrayList<>();
+        for (Material material : materials) {
+            GoodsClassify goodsClassify = goodsClassifyMapper.selectById(material.getClassifyId());
+            material.setName(material.getName()+"("+goodsClassify.getClassifyName()+")");
+            materials1.add(material);
+        }
+        return RepResult.repResult(0, "查询成功", materials1, (long) materials.size());
     }
 
     public Object loadAllPurchaseForm(MaterialVo materialVo){
@@ -57,7 +65,20 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
                 .eq(StringUtils.isNotBlank(materialVo.getName()),Material::getName,materialVo.getName())
                 .eq(Material::getDeleteFlag,"0");
         Page<Material> materialPage = materialMapper.selectPage(new Page<>(materialVo.getPage(), materialVo.getLimit()), queryWrapper);
-        return RepResult.repResult(0, "成功", materialPage.getRecords(),materialPage.getTotal());
+        List<GoodsDto> goodsDtos = materialPage.getRecords().stream().map(material -> {
+            GoodsClassify goodsClassify = goodsClassifyMapper.selectOne(new LambdaQueryWrapper<GoodsClassify>().eq(GoodsClassify::getId, material.getClassifyId()));
+            GoodsDto goodsDto = new GoodsDto();
+            goodsDto.setId(material.getId().toString());
+            goodsDto.setName(material.getName());
+            goodsDto.setGoodsIfyName(goodsClassify.getClassifyName());
+            return goodsDto;
+        }).collect(Collectors.toList());
+        return RepResult.repResult(0, "成功",goodsDtos,materialPage.getTotal());
+    }
+
+    public Object getSupplierList(){
+        List<GoodsClassify> supplierList = goodsClassifyMapper.selectList(new QueryWrapper<>());
+        return RepResult.repResult(0, "查询成功", supplierList, (long) supplierList.size());
     }
 
     public Object insertSelective(MaterialVo record) {
@@ -66,6 +87,16 @@ public class MaterialServiceImpl extends ServiceImpl<MaterialMapper, Material> i
         }
         record.setDeleteFlag("0");
         if (1 != materialMapper.insert(record)) {
+            throw new BizException("添加失败");
+        }
+        return RepResult.repResult(0, "添加成功", null);
+    }
+
+    public Object insertGoodsClass(GoodsClassify record) {
+        if (null == record) {
+            throw new BizException("添加数据为空");
+        }
+        if (1 != goodsClassifyMapper.insert(record)) {
             throw new BizException("添加失败");
         }
         return RepResult.repResult(0, "添加成功", null);
