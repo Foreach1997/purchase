@@ -11,10 +11,7 @@ import com.pu.purchase.dto.PurchaseFormDto;
 import com.pu.purchase.entity.*;
 import com.pu.purchase.mapper.*;
 import com.pu.purchase.service.IPurchaseFormService;
-import com.pu.purchase.util.DateUtils;
-import com.pu.purchase.util.RepResult;
-import com.pu.purchase.util.SendEmail;
-import com.pu.purchase.util.WebUtils;
+import com.pu.purchase.util.*;
 import com.pu.purchase.vo.PurchaseFormVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -24,6 +21,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -59,7 +57,8 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
     private SupplierScoreMapper supplierScoreMapper;
     @Resource
     private DeliverFormMapper deliverFormMapper;
-
+    @Resource
+    private NoNutil noNutil;
 
     public Object queryAllPurchaseForm(PurchaseFormVo purchaseFormVo) {
         LambdaQueryWrapper<PurchaseForm> queryWrapper = new LambdaQueryWrapper<PurchaseForm>()
@@ -84,12 +83,13 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         return RepResult.repResult(0, "查询成功", dtoList, (long) purchaseFormPage.getTotal());
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Object insertSelective(PurchaseFormVo record) {
         if (null == record) {
             throw new BizException("添加数据为空");
         }
         Long time = System.currentTimeMillis();
-        record.setNo(time.toString());
+        record.setNo(noNutil.getAllNo());
         record.setCreatePerson(WebUtils.getCurrentUserName());
         record.setUpdateDate(LocalDateTime.now());
         record.setCreateDate(LocalDateTime.now());
@@ -111,6 +111,9 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
                 .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo())
                 .orderByDesc(SupplierScore::getSupplierScore)
                 .last("limit 3"));
+        if (supplierScores.size()<0){
+            throw new BizException("没有对应供应商");
+        }
         for (SupplierScore score : supplierScores) {
             DeliverForm deliver = new DeliverForm();
             deliver.setSupplierId(score.getSupplierId());
