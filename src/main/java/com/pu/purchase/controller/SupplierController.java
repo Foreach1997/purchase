@@ -138,7 +138,7 @@ public class SupplierController  {
         if (theoryNum > purchaseDetail.getPurchaseQuality() ){
             throw  new BizException("大于我们采购数量");
         }
-        if (result > purchaseDetail.getPurchaseQuality()){
+        if (theoryNum > purchaseDetail.getPurchaseQuality()){
             throw  new BizException("大于我们采购数量!我们还需要最多:"+ (purchaseDetail.getPurchaseQuality()-deliverFormNum)+",或者"+purchaseDetail.getPurchaseQuality());
         }
         DeliverForm deliverForm = new DeliverForm();

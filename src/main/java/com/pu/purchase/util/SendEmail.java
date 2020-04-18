@@ -12,7 +12,7 @@ public class SendEmail {
 
     public static void send(String email,String url) throws MessagingException, GeneralSecurityException {
         Properties prop = new Properties();
-        prop.setProperty("mail.host", "smtp.qq.com"); //// 设置QQ邮件服务器
+        prop.setProperty("mail.host", "smtp.163.com"); //// 设置QQ邮件服务器
         prop.setProperty("mail.transport.protocol", "smtp"); // 邮件发送协议
         prop.setProperty("mail.smtp.auth", "true"); // 需要验证用户名密码
 
@@ -29,7 +29,7 @@ public class SendEmail {
         Session session = Session.getDefaultInstance(prop, new Authenticator() {
             public PasswordAuthentication getPasswordAuthentication() {
                 //发件人邮件用户名、授权码
-                return new PasswordAuthentication("1667445148@qq.com", "bvtiwptsqtfucabg");
+                return new PasswordAuthentication("liu1253170566@163.com", "BHUSGGDIVIMPWCTW");
             }
         });
 
@@ -41,7 +41,7 @@ public class SendEmail {
         Transport ts = session.getTransport();
 
         //3、使用邮箱的用户名和授权码连上邮件服务器
-        ts.connect("smtp.qq.com", "1667445148@qq.com", "bvtiwptsqtfucabg");
+        ts.connect("smtp.163.com", "liu1253170566@163.com", "BHUSGGDIVIMPWCTW");
 
         //4、创建邮件
 
@@ -49,7 +49,7 @@ public class SendEmail {
         MimeMessage message = new MimeMessage(session);
 
         //指明邮件的发件人
-        message.setFrom(new InternetAddress("1667445148@qq.com"));
+        message.setFrom(new InternetAddress("liu1253170566@163.com"));
 
         //指明邮件的收件人，现在发件人和收件人是一样的，那就是自己给自己发
         message.setRecipient(Message.RecipientType.TO, new InternetAddress(email));

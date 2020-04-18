@@ -38,7 +38,7 @@ public class Task {
     @Autowired
     private SupplierMapper supplierMapper;
 
-//    @Scheduled(cron = "0/10 * * * * ?")
+ //@Scheduled(cron = "0/60 * * * * ?")
     public void updateSendPrice(){
        List<DeliverForm> deliverForm = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().lambda()
                .in(DeliverForm::getStatus,1,0)
@@ -57,19 +57,19 @@ public class Task {
                 DeliverForm deliver = new DeliverForm();
                 deliver.setStatus(-1);
                 deliverFormMapper.update(deliver,new QueryWrapper<DeliverForm>().lambda()
-                        .eq(DeliverForm::getNo,deliver.getNo())
-                        .ne(DeliverForm::getSupplierId,deliver.getSupplierId()));
+                        .eq(DeliverForm::getPurchaseNo,deliverForms1.get(0).getPurchaseNo())
+                        .ne(DeliverForm::getSupplierId,deliverForms1.get(0).getSupplierId()));
                 DeliverForm currentDeliver = new DeliverForm();
                 currentDeliver.setStatus(2);
                 deliverFormMapper.update(currentDeliver,new QueryWrapper<DeliverForm>().lambda()
-                        .eq(DeliverForm::getPurchaseNo,deliver.getPurchaseNo())
-                        .eq(DeliverForm::getSupplierId,deliver.getSupplierId()));
+                        .eq(DeliverForm::getPurchaseNo,deliverForms1.get(0).getPurchaseNo())
+                        .eq(DeliverForm::getSupplierId,deliverForms1.get(0).getSupplierId()));
                 //发送发货单邮件
-                Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda().eq(Supplier::getId,deliver.getSupplierId()));
+                Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda().eq(Supplier::getId,deliverForms1.get(0).getSupplierId()));
                 try {
-                    SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no=" + deliver.getNo());
+                    SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no=" + deliverForms1.get(0).getNo());
                 }catch (Exception e){
-                    log.info(e.getMessage());
+                    log.info(""+e);
                 }
                 sum = purchaseDetail.getPurchaseQuality();
                 return;
@@ -102,7 +102,7 @@ public class Task {
                     try {
                         SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no=" + form.getNo());
                     }catch (Exception e){
-                        log.info(e.getMessage());
+                        log.info(""+e);
                     }
                     sum = purchaseDetail.getPurchaseQuality();
                     break;
@@ -131,7 +131,7 @@ public class Task {
                         try {
                             SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no" + deliverForm2.getNo());
                         }catch (Exception e){
-                            log.info(e.getMessage());
+                            log.info(""+e);
                         }
                     }
                     break;
@@ -160,7 +160,7 @@ public class Task {
                     try {
                         SendEmail.send(supplier.getEmail(), "http://localhost:8080/purMsg/inquiryOrder.html?no=" + deliver.getNo());
                     }catch (Exception e){
-                        log.info(e.getMessage());
+                        log.info(""+e);
                     }
                 }
             }

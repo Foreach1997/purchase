@@ -148,9 +148,11 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         BigDecimal  fastScore = BigDecimal.ZERO;
         List<SupplierScoreFlow> supplierScoreFlows = supplierScoreFlowMapper.selectList(new QueryWrapper<SupplierScoreFlow>().lambda()
                 .eq(SupplierScoreFlow::getMaterialId,purchaseNo)
-                .eq(SupplierScoreFlow::getSupplierId,supplierId));
+                .eq(SupplierScoreFlow::getSupplierId,supplierId)
+                .last("limit 5"));
         if (supplierScoreFlows.size()>0){
             fastScore = supplierScoreFlows.stream().map(SupplierScoreFlow::getScore).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+            
         }
         return fastScore;
     }

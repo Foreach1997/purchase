@@ -26,8 +26,9 @@ public class NoNutil {
         int count =  purchaseFormMapper.selectCount(new QueryWrapper<PurchaseForm>().lambda()
                 .gt(PurchaseForm::getCreateDate,start)
                 .lt(PurchaseForm::getCreateDate,end));
-        String no = nowDate + count;
-        return "N"+no;
+        count = count + 1;
+        String no = nowDate + count+1;
+        return "CG"+no;
     }
 
 

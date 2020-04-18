@@ -88,8 +88,8 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         if (null == record) {
             throw new BizException("添加数据为空");
         }
-        Long time = System.currentTimeMillis();
-        record.setNo(noNutil.getAllNo());
+        String no = noNutil.getAllNo();
+        record.setNo(no);
         record.setCreatePerson(WebUtils.getCurrentUserName());
         record.setUpdateDate(LocalDateTime.now());
         record.setCreateDate(LocalDateTime.now());
@@ -101,7 +101,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
         purchaseDetail.setProductNo(record.getProductNo());
         purchaseDetail.setPurchasePrice(record.getPurchasePrice());
         purchaseDetail.setPurchaseQuality(record.getPurchaseQuality());
-        purchaseDetail.setPurchaseNo(time.toString());
+        purchaseDetail.setPurchaseNo(no);
         purchaseDetail.setArriveTime(DateUtils.getLocalDateTime(record.getArriveTime()));
         purchaseDetail.setPrice(record.getPurchasePrice().divide(new BigDecimal(record.getPurchaseQuality()),2, RoundingMode.HALF_UP));
         if (1 != purchaseDetailMapper.insert(purchaseDetail)) {
@@ -111,7 +111,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
                 .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo())
                 .orderByDesc(SupplierScore::getSupplierScore)
                 .last("limit 3"));
-        if (supplierScores.size()<0){
+        if (supplierScores.size()==0){
             throw new BizException("没有对应供应商");
         }
         for (SupplierScore score : supplierScores) {
