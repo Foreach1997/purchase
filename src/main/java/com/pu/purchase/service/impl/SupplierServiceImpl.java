@@ -3,23 +3,12 @@ package com.pu.purchase.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
-import com.pu.purchase.entity.DeliverForm;
-import com.pu.purchase.entity.PurchaseDetail;
-import com.pu.purchase.entity.Supplier;
-import com.pu.purchase.entity.SupplierScore;
-import com.pu.purchase.mapper.DeliverFormMapper;
-import com.pu.purchase.mapper.PurchaseDetailMapper;
-import com.pu.purchase.mapper.SupplierMapper;
-import com.pu.purchase.mapper.SupplierScoreMapper;
+import com.pu.purchase.entity.*;
+import com.pu.purchase.mapper.*;
 import com.pu.purchase.service.ISupplierService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.pu.purchase.util.RepResult;
 import com.pu.purchase.util.SendEmail;
-import org.hibernate.validator.constraints.pl.REGON;
-import com.pu.purchase.util.RepResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -30,12 +19,12 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Period;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -57,7 +46,8 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
     private DeliverFormMapper deliverFormMapper;
     @Resource
     private SupplierScoreMapper supplierScoreMapper;
-
+    @Resource
+    private SupplierScoreFlowMapper supplierScoreFlowMapper;
 
    @Override
    public  Object getAllSupplier(int current, int size, String supplier, String phonenum, Integer enabled){
@@ -111,11 +101,17 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                      .divide(new BigDecimal(purchaseDetail.getPurchaseQuality()),2,RoundingMode.HALF_UP)
                      .multiply(new BigDecimal(20));
          score = score.add(timeScore);
+             SupplierScoreFlow   supplierScoreFlow = new SupplierScoreFlow();
+             supplierScoreFlow.setCreateTime(LocalDateTime.now());
+             supplierScoreFlow.setSupplierId(deliverForms.getSupplierId());
+             supplierScoreFlow.setMaterialId(Long.valueOf(purchaseDetail.getProductNo()));
+             supplierScoreFlow.setScore(getFast(score, purchaseNo, supplierId));
+             supplierScoreFlowMapper.insert(supplierScoreFlow);
         SupplierScore supplierScore =  supplierScoreMapper.selectOne(new QueryWrapper<SupplierScore>().lambda()
                  .eq(SupplierScore::getSupplierId,deliverForms.getSupplierId())
                  .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo()));
         if (supplierScore != null){
-                supplierScore.setSupplierScore(getFastScore(score));
+                supplierScore.setSupplierScore(getFast(score, purchaseNo, supplierId));
                 supplierScoreMapper.update(supplierScore,new QueryWrapper<SupplierScore>().lambda()
                         .eq(SupplierScore::getId,supplierScore.getId()));
         }else {
@@ -123,7 +119,7 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
              supplierScore.setCreateTime(LocalDateTime.now());
              supplierScore.setSupplierId(deliverForms.getSupplierId());
              supplierScore.setMaterialId(Long.valueOf(purchaseDetail.getProductNo()));
-             supplierScore.setSupplierScore(getFastScore(score));
+             supplierScore.setSupplierScore(getFast(score, purchaseNo, supplierId));
              supplierScoreMapper.insert(supplierScore);
             }
         }
@@ -145,6 +141,18 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
             }
         }
 
+    }
+
+    public BigDecimal getFast(BigDecimal score,String purchaseNo,Long supplierId){
+        //[0,25] = -1 ,[26,50] = -0.5 [50,75] = +0.5 ,[75,100] = +1
+        BigDecimal  fastScore = BigDecimal.ZERO;
+        List<SupplierScoreFlow> supplierScoreFlows = supplierScoreFlowMapper.selectList(new QueryWrapper<SupplierScoreFlow>().lambda()
+                .eq(SupplierScoreFlow::getMaterialId,purchaseNo)
+                .eq(SupplierScoreFlow::getSupplierId,supplierId));
+        if (supplierScoreFlows.size()>0){
+            fastScore = supplierScoreFlows.stream().map(SupplierScoreFlow::getScore).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        }
+        return fastScore;
     }
 
     public BigDecimal getFastScore(BigDecimal score){

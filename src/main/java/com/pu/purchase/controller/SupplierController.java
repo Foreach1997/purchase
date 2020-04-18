@@ -136,13 +136,13 @@ public class SupplierController  {
                 .eq(PurchaseDetail::getPurchaseNo,deliver.getPurchaseNo()));
       int result =  deliverFormNum + theoryNum;
         if (purchaseDetail.getPurchaseQuality().equals(deliverFormNum)){
-            throw  new BizException("我们采购已完成");
+
         }
         if (theoryNum > purchaseDetail.getPurchaseQuality() ){
             throw  new BizException("大于我们采购数量");
         }
         if (result > purchaseDetail.getPurchaseQuality()){
-            throw  new BizException("大于我们采购数量!我们还需要最多:"+ (purchaseDetail.getPurchaseQuality()-deliverFormNum));
+            throw  new BizException("大于我们采购数量!我们还需要最多:"+ (purchaseDetail.getPurchaseQuality()-deliverFormNum)+",或者"+purchaseDetail.getPurchaseQuality());
         }
         DeliverForm deliverForm = new DeliverForm();
         deliverForm.setTheoryTime(DateUtils.getLocalDateTime(theoryTime));

@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author 
- * @since 2020-03-14
+ * @since 2020-04-18
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -32,15 +32,15 @@ public class Material implements Serializable {
     private String name;
 
     /**
-     * 商品分类
-     */
-    private String classifyId;
-
-    /**
      * 删除标记，0未删除，1删除
      */
     @TableField("delete_Flag")
     private String deleteFlag;
+
+    /**
+     * 商品分类
+     */
+    private String classifyId;
 
 
 }
