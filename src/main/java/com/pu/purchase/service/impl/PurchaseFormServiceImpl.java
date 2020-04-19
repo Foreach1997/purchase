@@ -188,7 +188,7 @@ public class PurchaseFormServiceImpl extends ServiceImpl<PurchaseFormMapper, Pur
                     PurchaseFormVo purchaseFormVo = new PurchaseFormVo();
                     Row row = sheet1.getRow(r);
                     purchaseFormVo.setName(Double.valueOf(String.valueOf(row.getCell(0) == null ? "" : row.getCell(0).toString())).intValue()+"");
-                    purchaseFormVo.setStatus(Double.valueOf(String.valueOf(row.getCell(1) == null ? "" : row.getCell(1))).intValue());
+                    purchaseFormVo.setStatus(0);
                     purchaseFormVo.setProductNo(Double.valueOf(String.valueOf(row.getCell(2) == null ? "" : row.getCell(2))).intValue()+"");
                     purchaseFormVo.setPurchaseQuality(Double.valueOf(String.valueOf(row.getCell(3) == null ? "" : row.getCell(3))).intValue());
                     purchaseFormVo.setPurchasePrice(new BigDecimal(Double.valueOf(String.valueOf(row.getCell(4) == null ? "" : row.getCell(4)))));

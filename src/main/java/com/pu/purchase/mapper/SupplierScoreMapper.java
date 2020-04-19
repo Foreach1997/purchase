@@ -1,7 +1,12 @@
 package com.pu.purchase.mapper;
 
+import com.pu.purchase.dto.SupplierScoreDto;
 import com.pu.purchase.entity.SupplierScore;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -12,5 +17,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2020-04-18
  */
 public interface SupplierScoreMapper extends BaseMapper<SupplierScore> {
+
+
 
 }

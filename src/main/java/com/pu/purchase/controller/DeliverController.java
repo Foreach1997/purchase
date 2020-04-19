@@ -49,6 +49,7 @@ public class DeliverController {
         PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().eq("purchase_no", deliverForm.getPurchaseNo()));
         Material material = materialMapper.selectOne(new QueryWrapper<Material>().eq("id", purchaseDetail.getProductNo()));
 
+
         deliverFormVo.setPurchaseNo(deliverForm.getPurchaseNo());
         deliverFormVo.setSupplierId(deliverForm.getSupplierId().toString());
         deliverFormVo.setNo(deliverForm.getNo());
@@ -70,6 +71,8 @@ public class DeliverController {
         Supplier supplier = supplierMapper.selectOne(new QueryWrapper<Supplier>().eq("id", deliverFormVo.getSupplierId()));
 
         DeliverForm deliverForm1 = deliverFormMapper.selectOne(new QueryWrapper<DeliverForm>().eq("no", deliverFormVo.getNo()));
+        PurchaseDetail purchaseDetail = purchaseDetailMapper.selectOne(new QueryWrapper<PurchaseDetail>().lambda().eq(PurchaseDetail::getPurchaseNo, deliverForm1.getPurchaseNo()));
+
         //deliverForm.setStatus(4);
         deliverForm.setDeliverDate(DateUtils.getLocalDateTime(deliverFormVo.getTheoryTime()));
         deliverForm.setUpdatePerson(supplier.getSupplier());
@@ -79,10 +82,13 @@ public class DeliverController {
         deliverForm.setNo(deliverFormVo.getNo());
         deliverForm.setPrice(new BigDecimal(deliverFormVo.getPrice()));
         deliverForm.setNum(Integer.parseInt(deliverFormVo.getNum()));
+        BigDecimal multiply = new BigDecimal(deliverFormVo.getPrice()).multiply(new BigDecimal("1.1"));
         if(null==deliverForm1.getNum()){
             modelAndView.addObject("msg","您已提交过请勿重复提交");
         }else if(Integer.parseInt(deliverFormVo.getNum())>Integer.parseInt(deliverFormVo.getTheoryNum())){
             modelAndView.addObject("msg","数量过多请重新填写");
+        }else if(multiply.compareTo(purchaseDetail.getPrice())>0){
+            modelAndView.addObject("msg","大于我们的采购价格10%");
         }else {
             modelAndView.addObject("msg","您的发货单已提交请尽快发货");
             deliverFormMapper.update(deliverForm,new QueryWrapper<DeliverForm>().eq("no",deliverFormVo.getNo()));

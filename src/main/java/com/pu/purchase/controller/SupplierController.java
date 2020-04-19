@@ -1,11 +1,15 @@
 package com.pu.purchase.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.pu.purchase.config.BizException;
+import com.pu.purchase.dto.SupplierScoreDto;
 import com.pu.purchase.entity.*;
+import com.pu.purchase.mapper.ExtSupplierScoreMapper;
 import com.pu.purchase.mapper.MaterialMapper;
+import com.pu.purchase.mapper.SupplierMapper;
 import com.pu.purchase.mapper.SupplierScoreMapper;
 import com.pu.purchase.service.impl.DeliverFormServiceImpl;
 import com.pu.purchase.service.impl.PurchaseDetailServiceImpl;
@@ -14,12 +18,14 @@ import com.pu.purchase.util.DateUtils;
 import com.pu.purchase.util.RepResult;
 import com.pu.purchase.vo.ReqStaticfic;
 import com.pu.purchase.vo.SupplierVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -44,6 +50,12 @@ public class SupplierController  {
 
     @Resource
     private SupplierScoreMapper supplierScoreMapper;
+
+    @Resource
+    private ExtSupplierScoreMapper extSupplierScoreMapper;
+
+    @Resource
+    private SupplierMapper supplierMapper;
 
 
 
@@ -216,12 +228,17 @@ public class SupplierController  {
      * 供应商积分
      */
     @GetMapping("/getAllSupplierScore")
-    public Object getAllSupplierScore(int size,int current,String materialId){
-        IPage<SupplierScore> iPage = new Page<>();
-        iPage.setSize(size);
-        iPage.setCurrent(current);
-        iPage = supplierScoreMapper.selectPage(iPage,new QueryWrapper<SupplierScore>().lambda()
-        .like(materialId != null,SupplierScore::getMaterialId,materialId));
-        return RepResult.repResult(0,"", iPage.getRecords(),iPage.getTotal());
+    public Object getAllSupplierScore(int size,int current,String materialId,String supplierName,String materName){
+        Map<String,Object> map = new HashMap<>();
+        map.put("materialId",materialId);
+        map.put("supplierName",supplierName);
+        map.put("materName",materName);
+        Integer page = (current-1)*size;
+        map.put("page",page);
+        map.put("limit",size);
+        System.out.println("page"+size+"limit"+current);
+        Integer i = extSupplierScoreMapper.countNum(map);
+        List<SupplierScoreDto> supplierScores = extSupplierScoreMapper.querySupplier(map);
+        return RepResult.repResult(0,"", supplierScores,i.longValue());
     }
 }

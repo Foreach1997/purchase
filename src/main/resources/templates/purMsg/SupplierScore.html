@@ -27,11 +27,19 @@
 <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
     <legend>供应商积分</legend>
 </fieldset>
-<div class="layui-form-item" style="margin-left: 600px">
+<div class="layui-form-item">
     <div class="layui-inline">
         <label class="layui-form-label">商品id:</label>
         <div class="layui-input-inline">
             <input type="text" name="materialId"  id="materialId"   autocomplete="off" class="layui-input">
+        </div>
+        <label class="layui-form-label">供应商名称:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="supplierName"  id="supplierName"   autocomplete="off" class="layui-input">
+        </div>
+        <label class="layui-form-label">货品名称:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="materName" id="materName"  autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-inline">
@@ -70,6 +78,8 @@
             }
             ,cols: [[
                 {field:'supplierId', width: tableWidth * 0.22, title: '供应商ID'}
+                ,{field:'supplierName', width: tableWidth * 0.22, title: '供应商名称'}
+                ,{field:'materName', width: tableWidth * 0.22, title: '货品名称'}
                 ,{field:'supplierScore', width:tableWidth * 0.15, title: '积分'}
                 ,{field:'materialId', width:tableWidth * 0.15, title: '货品id'}
             ]]
@@ -91,7 +101,9 @@
     function find(){
         layui.table.reload('info',{
             where: {
-                materialId:$("#materialId").val()
+                materialId:$("#materialId").val(),
+                supplierName:$("#supplierName").val(),
+                materName:$("#materName").val()
             }});
     }
 
