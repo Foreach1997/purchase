@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.annotation.Resource;
+import java.beans.BeanInfo;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -87,7 +88,7 @@ public class DeliverController {
             modelAndView.addObject("msg","您已提交过请勿重复提交");
         }else if(Integer.parseInt(deliverFormVo.getNum())>Integer.parseInt(deliverFormVo.getTheoryNum())){
             modelAndView.addObject("msg","数量过多请重新填写");
-        }else if(multiply.compareTo(purchaseDetail.getPrice())>0){
+        }else if(new BigDecimal(deliverFormVo.getPrice()).compareTo(multiply)>0){
             modelAndView.addObject("msg","大于我们的采购价格10%");
         }else {
             modelAndView.addObject("msg","您的发货单已提交请尽快发货");

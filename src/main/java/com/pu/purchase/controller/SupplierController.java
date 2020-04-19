@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
@@ -137,7 +138,7 @@ public class SupplierController  {
      * 更新deliver_form
      */
     @GetMapping("/updateDeliverForm")
-    public Object updateDeliverForm(String no,Integer theoryNum,Date theoryTime){
+    public Object updateDeliverForm(String no, Integer theoryNum, Date theoryTime, BigDecimal price){
       DeliverForm deliver =  deliverFormServiceImpl.getOne(new QueryWrapper<DeliverForm>().lambda().eq(DeliverForm::getNo,no));
       List<DeliverForm> deliverFormList =   deliverFormServiceImpl.list(new QueryWrapper<DeliverForm>().lambda().eq(DeliverForm::getPurchaseNo,deliver.getPurchaseNo()));
       Integer deliverFormNum = deliverFormList.stream().mapToInt(DeliverForm::getTheoryNum).sum();
@@ -147,9 +148,13 @@ public class SupplierController  {
         if (purchaseDetail.getPurchaseQuality().equals(deliverFormNum)){
 
         }
-        if (theoryNum > purchaseDetail.getPurchaseQuality() ){
-            throw  new BizException("大于我们采购数量");
+       BigDecimal priceFloat = purchaseDetail.getPrice().multiply(new BigDecimal("1.1"));
+        if (price.compareTo(priceFloat)>0){
+            throw  new BizException("大于我们采购单价10%");
         }
+//        if (theoryNum > purchaseDetail.getPurchaseQuality() ){
+//            throw  new BizException("大于我们采购数量");
+//        }
         if (theoryNum > purchaseDetail.getPurchaseQuality()){
             throw  new BizException("大于我们采购数量!我们还需要最多:"+ (purchaseDetail.getPurchaseQuality()-deliverFormNum)+",或者"+purchaseDetail.getPurchaseQuality());
         }

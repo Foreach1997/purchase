@@ -38,7 +38,7 @@ public class Task {
     @Autowired
     private SupplierMapper supplierMapper;
 
- //@Scheduled(cron = "0/60 * * * * ?")
+    @Scheduled(cron = "0/60 * * * * ?")
     public void updateSendPrice(){
        List<DeliverForm> deliverForm = deliverFormMapper.selectList(new QueryWrapper<DeliverForm>().lambda()
                .in(DeliverForm::getStatus,1,0)
@@ -129,7 +129,7 @@ public class Task {
                         Supplier supplier =  supplierMapper.selectOne(new QueryWrapper<Supplier>().lambda()
                                 .eq(Supplier::getId,deliverForm2.getSupplierId()));
                         try {
-                            SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no" + deliverForm2.getNo());
+                            SendEmail.send(supplier.getEmail(), "http://localhost:8080/deli/toDeliverForm?no=" + deliverForm2.getNo());
                         }catch (Exception e){
                             log.info(""+e);
                         }

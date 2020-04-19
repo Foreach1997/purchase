@@ -27,7 +27,7 @@ public class NoNutil {
                 .gt(PurchaseForm::getCreateDate,start)
                 .lt(PurchaseForm::getCreateDate,end));
         count = count + 1;
-        String no = nowDate + count+1;
+        String no = nowDate + count;
         return "CG"+no;
     }
 

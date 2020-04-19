@@ -37,6 +37,12 @@
             <input type="text" name="theoryNum" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
         </div>
     </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">预计单价:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="price" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+        </div>
+    </div>
     <input type="hidden" name="id"  placeholder="请输入" autocomplete="off" class="layui-input">
     <div class="layui-form-item">
         <div class="layui-input-block">
@@ -65,7 +71,7 @@
                 type: "GET",
                 url: dev+"supplier/updateDeliverForm",
                 async:false,
-                data: {"theoryTime":new Date(data.theoryTime),"theoryNum":data.theoryNum,"no":data.no},
+                data: {"theoryTime":new Date(data.theoryTime),"theoryNum":data.theoryNum,"no":data.no,"price":data.price},
                 success: function(res){
                     layer.msg(res.msg);
                 }

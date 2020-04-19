@@ -101,17 +101,18 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
                      .divide(new BigDecimal(purchaseDetail.getPurchaseQuality()),2,RoundingMode.HALF_UP)
                      .multiply(new BigDecimal(20));
          score = score.add(timeScore);
+         BigDecimal result = getFast(score, purchaseNo, supplierId);
              SupplierScoreFlow   supplierScoreFlow = new SupplierScoreFlow();
              supplierScoreFlow.setCreateTime(LocalDateTime.now());
              supplierScoreFlow.setSupplierId(deliverForms.getSupplierId());
              supplierScoreFlow.setMaterialId(Long.valueOf(purchaseDetail.getProductNo()));
-             supplierScoreFlow.setScore(getFast(score, purchaseNo, supplierId));
+             supplierScoreFlow.setScore(result);
              supplierScoreFlowMapper.insert(supplierScoreFlow);
         SupplierScore supplierScore =  supplierScoreMapper.selectOne(new QueryWrapper<SupplierScore>().lambda()
                  .eq(SupplierScore::getSupplierId,deliverForms.getSupplierId())
                  .eq(SupplierScore::getMaterialId,purchaseDetail.getProductNo()));
         if (supplierScore != null){
-                supplierScore.setSupplierScore(getFast(score, purchaseNo, supplierId));
+                supplierScore.setSupplierScore(result);
                 supplierScoreMapper.update(supplierScore,new QueryWrapper<SupplierScore>().lambda()
                         .eq(SupplierScore::getId,supplierScore.getId()));
         }else {
@@ -149,12 +150,14 @@ public class SupplierServiceImpl extends ServiceImpl<SupplierMapper, Supplier> i
         List<SupplierScoreFlow> supplierScoreFlows = supplierScoreFlowMapper.selectList(new QueryWrapper<SupplierScoreFlow>().lambda()
                 .eq(SupplierScoreFlow::getMaterialId,purchaseNo)
                 .eq(SupplierScoreFlow::getSupplierId,supplierId)
-                .last("limit 5"));
+                .last("limit 4"));
         if (supplierScoreFlows.size()>0){
             fastScore = supplierScoreFlows.stream().map(SupplierScoreFlow::getScore).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-            
+            fastScore = score.add(fastScore);
+            fastScore = fastScore.divide(new BigDecimal(supplierScoreFlows.size()+1),2,RoundingMode.HALF_UP);
+            return fastScore;
         }
-        return fastScore;
+        return score;
     }
 
     public BigDecimal getFastScore(BigDecimal score){
